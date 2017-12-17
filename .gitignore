@@ -1,0 +1,28 @@
+# files for the dex VM
+*.dex
+
+# Java class files
+*.class
+
+# vim files
+*~
+
+# generated files
+bin/
+gen/
+coverage-report/
+build/
+
+# Local configuration file (sdk path, etc)
+local.properties
+
+# Eclipse project files
+.classpath
+.project
+# Eclipse andriod lint configuration file:
+lint.xml
+
+*.jar
+.gradle
+.settings
+.DS_Store
