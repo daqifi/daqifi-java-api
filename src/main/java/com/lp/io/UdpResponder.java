@@ -10,6 +10,7 @@ import java.util.Set;
 import java.util.logging.Logger;
 
 import com.tacuna.common.messages.ProtoMessage.WiFiDAQOutMessage;
+import com.tacuna.common.messages.ProtoMessageV2;
 
 /**
  * UDP Responder class is used to respond to the UdpBroadcast. This class is
@@ -68,7 +69,7 @@ public class UdpResponder {
 
   protected void sendResponseForPort(DatagramPacket received, Server server)
           throws IOException {
-    WiFiDAQOutMessage msg = server.getWifiDAQOutMessage();
+    ProtoMessageV2.DaqifiOutMessage msg = server.getOutMessage();
     byte[] data = msg.toByteArray();
     DatagramPacket response = new DatagramPacket(data, data.length,
             received.getAddress(), received.getPort());

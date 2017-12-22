@@ -68,7 +68,7 @@ public class SimpleProtobufMessage extends Message {
     return protoMessage.getMsgTimeStamp();
   }
 
-  public long getDeviceTimeStamp(TimeUnit unit){
+  public long getDeviceTimestamp(TimeUnit unit){
     int tick = protoMessage.getMsgTimeStamp();
     int freq = protoMessage.getTimestampFreq();
     double timeInSeconds = ((double)tick)/ ((double)freq);

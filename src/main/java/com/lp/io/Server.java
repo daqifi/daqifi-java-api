@@ -99,7 +99,8 @@ public class Server extends Thread {
             adcRange = Integer.parseInt(split[1]);
             data = String.format("Set range to %d", adcRange);
           } else if (command.contains("system:sysinfopb")) {
-            WiFiDAQOutMessage msg = getWifiDAQOutMessage();
+            //WiFiDAQOutMessage msg = getWifiDAQOutMessage();
+            ProtoMessageV2.DaqifiOutMessage msg = getOutMessage();
             msg.writeDelimitedTo(clientSocket.getOutputStream());
             data = msg.toString();
           } else if (splitString.length == 2) {
@@ -277,7 +278,7 @@ public class Server extends Thread {
       this.dt = convertSampleRateToDt(samplesPerSecond);
 
       float max = (getAdcRange() == 1) ? 10.0f : 5.0f;
-      this.dataGen = new SineGenerator(max * 0.99f, (float) (2 * Math.PI / 10f), 0f);
+      this.dataGen = new SineGenerator(max * 0.99f, (float) (2 * Math.PI / 100_000_000f), 0f);
       //this.dataGen = new Limiter(new CompositeGenerator(
       //        new SineGenerator(max*0.99f, (float) (2 * Math.PI / 10f), 0f),
       //        new SineGenerator(1f, (float) (2 * Math.PI / 1000f), 0f)), -1*max, max);
@@ -290,6 +291,8 @@ public class Server extends Thread {
 
     @Override
     public void run() {
+      double dtPerSample = 1d/saplesPerSecond;
+      long waitInMicros = Math.round(Math.floor(dtPerSample * 1_000_000));
       try {
         int sequence = 0;
         long lastTimeLogged = System.currentTimeMillis();
@@ -310,25 +313,21 @@ public class Server extends Thread {
               lastTimeLogged = now;
               startTimeSeq = sequence;
 
-              if (dt > 0) {
-                dt--;
+              if (waitInMicros > 0) {
+                  waitInMicros = waitInMicros - 10;
               }
             } else {
               // We've already sent the number of samples for the
-              // current second. Sleep and continue until its the
-              // next second.
-              try {
-                Thread.sleep(1);
-              } catch (InterruptedException e) {
-                log.warning(e.getMessage());
-              }
-              continue;
+              // current second. If we are sending too fast, slow down the wait time
+                if(delta < 900) {
+                    waitInMicros = waitInMicros + 10;
+                }
             }
           }
 
           sequence += 1;
           buildDataMessageV2(System.nanoTime());
-          Thread.sleep(dt);
+          waitFor(waitInMicros);
         }
       } catch (IOException err) {
         log.warning("Exception caught. Stopping data generation. Error: "
@@ -336,6 +335,19 @@ public class Server extends Thread {
       } catch (InterruptedException err) {
         log.warning("Exception caught. Stopping data generation. Error: "
                 + err.toString());
+      }
+    }
+
+    private void waitFor(long micros) throws InterruptedException{
+        if(micros <= 0) return;
+
+      if(micros > 10_000){
+        Thread.sleep(TimeUnit.MILLISECONDS.convert(micros, TimeUnit.MICROSECONDS));
+      } else {
+        long waitUntil = System.nanoTime() + (micros * 1_000);
+        while (waitUntil > System.nanoTime()) {
+          ;
+        }
       }
     }
 
@@ -366,7 +378,7 @@ public class Server extends Thread {
               int bit = 1 << jj;
               if ((bit & channelMask) == bit) {
                   builder.addAnalogInData(DtoAConverter.convertVoltageToInt(
-                          dataGen.getValue(time * (jj + 1)), AD7195W.ADC_RESOLUTION, getAdcRange()));
+                          dataGen.getValue(time), AD7195W.ADC_RESOLUTION, getAdcRange()));
               }
           }
           byte[] di = new byte[1];

@@ -12,6 +12,7 @@ import com.tacuna.common.devices.channels.DigitalInputChannel;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Message consumer class that takes SimpleDeviceMessage and adds the value to
@@ -54,11 +55,12 @@ public class MessageChannelRouter implements
         int index = 0;
         int adcRange = device.getAdcResolution();
         float[] data = new float[device.getNumberOfAnalogInChannels()];
+        long measurementTime = msg.getDeviceTimestamp(TimeUnit.MICROSECONDS);
         for (ChannelInterface c : aiChannels) {
             if (c.isActive()) {
 
                 float value = (float) ((AnalogInputChannel) c).convert(msg.getAnalogInValue(activeIndex), adcRange);
-                ((AnalogInputChannel) c).add(measurement.getTimestamp(), value);
+                ((AnalogInputChannel) c).add(measurementTime, value);
                 activeIndex++;
 
                 data[index] = value;
@@ -68,7 +70,7 @@ public class MessageChannelRouter implements
 
         }
         measurement.analogData = data;
-        measurement.timestamp = msg.getDeviceTimestamp();
+        measurement.timestamp = measurementTime;
 
 
         for (ChannelInterface c : diChannels) {
@@ -81,7 +83,7 @@ public class MessageChannelRouter implements
 
         for(ChannelInterface c: mathInputChannels){
             AnalogMathInputChannel mathCh = (AnalogMathInputChannel) c;
-            mathCh.computeCurrent(msg.getTimestamp());
+            mathCh.computeCurrent(measurementTime);
 
             measurement.analogData[mathCh.getDeviceIndex()] = mathCh.getCurrentValue();
         }
