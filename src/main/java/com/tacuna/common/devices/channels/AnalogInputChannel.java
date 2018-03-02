@@ -153,6 +153,13 @@ public class AnalogInputChannel extends Channel implements InputInterface<Float>
         return scale;
     }
 
+    public void setCalibrationValues(double analogInPortRange, double analogInScaleM, double calM, double calB){
+        DataScale base = getScale().getBase();
+        if(base instanceof DtoV){
+            ((DtoV)base).setCalibrationValues(analogInPortRange, analogInScaleM, calM, calB);
+        }
+    }
+
     public double convert(int sample, int adcDataRange) {
         return scale.convert(sample, adcDataRange);
     }

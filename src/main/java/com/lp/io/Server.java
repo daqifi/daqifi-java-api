@@ -89,7 +89,7 @@ public class Server extends Thread {
           } else if (command.contains("system:stopstreamdata")) {
             dt.running = false;
             data = "Stop streaming";
-          } else if (command.contains("configure:adc:channel")) {
+          } else if (command.contains("configure:adc:channel") || command.contains("enable:voltage:dc")) {
             String[] split = command.split("[ ]");
             channelMask = Integer.parseInt(split[1]);
             data = String.format("Set channel mask to %s",
@@ -189,8 +189,13 @@ public class Server extends Thread {
 
     builder.setPwrStatus(1);
     builder.setSsid("1111");
-    builder.setDevicePn("WFD-AI8-DIO8-AO8");
+    builder.setDevicePn("Nq1");
     builder.setDevicePort(port);
+
+    builder.setAnalogInRes(4096);
+    builder.setAnalogInResPriv(4096);
+
+    builder.setTimestampFreq(50000000);
 
     return builder.build();
   }
@@ -326,7 +331,7 @@ public class Server extends Thread {
           }
 
           sequence += 1;
-          buildDataMessageV2(System.nanoTime());
+          buildDataMessageV2(System.nanoTime() / 1000);
           waitFor(waitInMicros);
         }
       } catch (IOException err) {
@@ -373,7 +378,7 @@ public class Server extends Thread {
           ProtoMessageV2.DaqifiOutMessage.Builder builder = ProtoMessageV2.DaqifiOutMessage.newBuilder();
 
           builder.setMsgTimeStamp((int)time);
-          builder.setTimestampFreq((int)TimeUnit.NANOSECONDS.convert(1, TimeUnit.SECONDS));
+          builder.setTimestampFreq((int)TimeUnit.MICROSECONDS.convert(1, TimeUnit.SECONDS));
           for (int jj = 0; jj < 8; jj++) {
               int bit = 1 << jj;
               if ((bit & channelMask) == bit) {

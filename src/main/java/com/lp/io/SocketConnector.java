@@ -265,4 +265,9 @@ public class SocketConnector extends Thread {
               oldValue, newValue));
     }
   }
+
+  @Override
+  public String toString(){
+    return String.format("%s:%d", host, port);
+  }
 }

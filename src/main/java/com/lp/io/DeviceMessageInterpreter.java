@@ -8,6 +8,7 @@ import com.tacuna.common.messages.ProtoMessageV2;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.Scanner;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -20,6 +21,7 @@ public class DeviceMessageInterpreter extends DataInterpreter {
     private static Logger log = Logger.getLogger(DeviceMessageInterpreter.class
             .getName());
     private final String encoding = "UTF-8";
+
 
     public String getEncoding() {
         return encoding;
@@ -65,12 +67,41 @@ public class DeviceMessageInterpreter extends DataInterpreter {
         }
     }
 
+    public static String print(byte[] bytes) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("[ ");
+        for (byte b : bytes) {
+              sb.append(String.format("0x%02X ", b));
+        }
+        sb.append("]");
+        return sb.toString();
+    }
+
+    private boolean hasReadTermPrompt = false;
     @Override
     public int parseData(InputStream in) throws IOException {
         try {
+            if(!hasReadTermPrompt){
+                in.mark(11);
+                byte[] buff = new byte[11];
+                in.read(buff, 0, 11);
+                in.reset();
+                if(Arrays.equals("DAQIFI> s\r\n".getBytes(encoding), buff)){
+                    in.skip(11);
+                    hasReadTermPrompt = true;
+                }
+            }
+
+            in.mark(2);
+            byte[] buff = new byte[2];
+            in.read(buff, 0, 2);
+            in.reset();
+            if(Arrays.equals("\r\n".getBytes(encoding), buff)){
+                in.skip(2);
+            }
+
             ProtoMessageV2.DaqifiOutMessage message = ProtoMessageV2.DaqifiOutMessage.parseDelimitedFrom(in);
-//            WiFiDAQOutMessage message = WiFiDAQOutMessage
-//                    .parseDelimitedFrom(in);
+
             if (message == null) {
                 return -1;
             }

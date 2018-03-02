@@ -49,7 +49,7 @@ public class AD7195W extends Device implements DeviceInterface {
         @Override
         public void propertyChange(PropertyChangeEvent event) {
             if(event.getNewValue() == SocketConnector.State.Connected){
-                while (!q.isEmpty()){
+                while (!q.isEmpty() && connection != null && connection.isConnected()){
                     AD7195W.this.send(q.poll());
                 }
             }
@@ -119,6 +119,9 @@ public class AD7195W extends Device implements DeviceInterface {
 
     @Override
     public void connect() {
+        msgQueue.add(new Command("system:echo -1"));
+        msgQueue.add(new Command("SYSTem:SYSInfoPB?"));
+
         this.connection = new SocketConnector(
                 getNetworkAddress().getHostName(), getNetworkAddress()
                 .getPort(), dataInterpreter);
@@ -166,8 +169,8 @@ public class AD7195W extends Device implements DeviceInterface {
     }
 
     private List<ChannelInterface> initializeDigitalChannels() {
-        List<ChannelInterface> digitalChannels = new ArrayList<ChannelInterface>(getNumberOfAnalogOutChannels());
-        for (int ii = 0; ii != getNumberOfAnalogOutChannels(); ii++) {
+        List<ChannelInterface> digitalChannels = new ArrayList<ChannelInterface>(numberOfDigitalIoChannels);
+        for (int ii = 0; ii != numberOfDigitalIoChannels; ii++) {
             digitalChannels.add(ii, new DigitalInputChannel("DIO" + ii, ii,
                     this));
         }
@@ -180,6 +183,7 @@ public class AD7195W extends Device implements DeviceInterface {
             try {
                 connection.send(command.getBytes());
                 connection.send("\r\n".getBytes());
+                log.info(connection.toString() + "> " + command.toString());
                 Thread.sleep(100);
             } catch (IOException e) {
                 log.warning("Unable to send command to device: " + e.toString());
@@ -198,40 +202,44 @@ public class AD7195W extends Device implements DeviceInterface {
      */
     public void startStreaming() {
         int activeChannelBitMask = getActiveChannelMask();
-        Command command = new Command(String.format("CONFigure:ADC:CHANnel %d",
-                activeChannelBitMask));
+        Command command = new Command("ENAble:VOLTage:DC %d", activeChannelBitMask);
         send(command);
 
-        Command adccommand = new Command(String.format("CONFigure:ADC:range %d",
-                getAdcResolution()));
-        send(adccommand);
+        if(isDiStreaming()) {
+            // Enables all DI channels for streaming.
+            Command dioCommand = new Command("DIO:PORt:ENAble 1");
+            send(dioCommand);
+        }
+//        Command adccommand = new Command(String.format("CONFigure:ADC:range %d",
+//                getAdcResolution()));
+//        send(adccommand);
 
         channelRouter.setNumberOfMessages(0);
-        Command streamCommand = new Command(String.format(
-                "system:startstreamdata %d", samplesPerSecond));
+        Command streamCommand = new Command("SYSTem:StartStreamData %d", samplesPerSecond);
         send(streamCommand);
 
         setIsStreaming(true);
-        log.info("Sent start stream command: " + streamCommand.toString());
     }
 
     public void stopStreaming() {
-        send(new Command("system:stopstreamdata"));
+        send(new Command("SYSTem:StopStreamData"));
         setIsStreaming(false);
     }
 
-    public void setDioChannelDirection(Direction direction) {
-        switch (direction) {
-            case Input:
-                send(new Command("port:direction 0"));
-                break;
-            case Output:
-                send(new Command("port:direction 1"));
-                break;
-            default:
-                break;
+    @Override
+    public void updateNetworkSettings(String ssid, int securityType, String password){
+        StringBuilder sb = new StringBuilder();
+        sb.append("SYSTem:COMMunicate:LAN:NETType 1\r\n");
+        sb.append(String.format("SYSTem:COMMunicate:LAN:SSID %s\r\n", ssid));
+        sb.append(String.format("SYSTem:COMMunicate:LAN:SECURITY %d\r\n", securityType));
+        if(securityType != 0) {
+            sb.append(String.format("SYSTem:COMMunicate:LAN:PASs %s\r\n", password));
         }
-        super.setDioChannelDirection(direction);
+        sb.append("SYSTem:COMMunicate:LAN:APPLY\r\n");
+        sb.append("SYSTem:COMMunicate:LAN:SAVE\r\n");
+        sb.append("SYSTem:REBoot");
+
+        send(new Command(sb.toString()));
     }
 
     /**

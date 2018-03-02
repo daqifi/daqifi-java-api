@@ -11,6 +11,20 @@ import java.util.Date;
  */
 public class Message {
   /**
+   * Utility for print message byte arrays as HEX
+   * @param bytes
+   * @return
+   */
+  public static String print(byte[] bytes) {
+    StringBuilder sb = new StringBuilder();
+    sb.append("[ ");
+    for (byte b : bytes) {
+      sb.append(String.format("0x%02X ", b));
+    }
+    sb.append("]");
+    return sb.toString();
+  }
+  /**
    * Time the message was created/received.
    */
   private final long timestamp;

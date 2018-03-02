@@ -16,7 +16,6 @@ public class Command {
    * Creates a SCPI command using the command and a channelIndex number.
    *
    * @param command
-   * @param channelIndex
    */
   public Command(String command, ChannelInterface channel) {
     super();
@@ -29,11 +28,15 @@ public class Command {
    * Creates a SCPI command using the string command.
    *
    * @param command
-   * @param channelIndex
    */
   public Command(String command) {
     super();
     this.command = command;
+  }
+
+  public Command(String format, Object ... args){
+    super();
+    this.command = String.format(format, args);
   }
 
   @Override

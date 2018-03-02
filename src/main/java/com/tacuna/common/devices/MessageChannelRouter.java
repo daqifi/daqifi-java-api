@@ -50,16 +50,21 @@ public class MessageChannelRouter implements
 
     @Override
     public void onMessage(final SimpleProtobufMessage msg) {
+        if(msg.isSysInfoResponse()){
+            DeviceFactory.setDeviceStatus(msg.getProtoMessage(), device);
+            return;
+        }
+
         final MeasurementMessage measurement = new MeasurementMessage(null);
         int activeIndex = 0;
         int index = 0;
-        int adcRange = device.getAdcResolution();
+        int adcResolution = device.getAdcResolution();
         float[] data = new float[device.getNumberOfAnalogInChannels()];
         long measurementTime = msg.getDeviceTimestamp(TimeUnit.MICROSECONDS);
         for (ChannelInterface c : aiChannels) {
             if (c.isActive()) {
-
-                float value = (float) ((AnalogInputChannel) c).convert(msg.getAnalogInValue(activeIndex), adcRange);
+                System.out.println(String.format("%d: %d (%d)", c.getDeviceIndex(), msg.getAnalogInValue(activeIndex), adcResolution));
+                float value = (float) ((AnalogInputChannel) c).convert(msg.getAnalogInValue(activeIndex), adcResolution);
                 ((AnalogInputChannel) c).add(measurementTime, value);
                 activeIndex++;
 

@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.lp.io.messages.Message;
@@ -46,8 +47,8 @@ public class DataInterpreter implements MessageProducer {
       try {
         consumer.onMessage(message);
       } catch (Throwable error) {
-        log.warning("Unable to notify consumer:" + consumer.getClass()
-                + "; Error: " + error.toString());
+        log.log(Level.WARNING, "Unable to notify consumer:" + consumer.getClass()
+                + "; Error: " + error.toString(), error);
       }
     }
   }

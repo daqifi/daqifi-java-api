@@ -1,6 +1,7 @@
 // Copyright 2013 Marc Bernardini.
 package com.lp.io;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -70,7 +71,10 @@ public class UdpResponder {
   protected void sendResponseForPort(DatagramPacket received, Server server)
           throws IOException {
     ProtoMessageV2.DaqifiOutMessage msg = server.getOutMessage();
-    byte[] data = msg.toByteArray();
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    //byte[] data = msg.toByteArray();
+    msg.writeDelimitedTo(out);
+    byte[] data = out.toByteArray();
     DatagramPacket response = new DatagramPacket(data, data.length,
             received.getAddress(), received.getPort());
     socket.send(response);

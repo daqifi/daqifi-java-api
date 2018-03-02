@@ -9,8 +9,9 @@ import com.tacuna.common.devices.DeviceInterface;
  * @author Marc
  */
 public class DigitalInputChannel extends Channel implements InputInterface<Byte> {
-  private byte bitMask = 0;
+  private int bitMask = 0;
   private int byteIndex = 0;
+  private DeviceInterface.Direction direction = DeviceInterface.Direction.Input;
 
   public DigitalInputChannel(String name, int index) {
     this(name, index, null);
@@ -19,18 +20,23 @@ public class DigitalInputChannel extends Channel implements InputInterface<Byte>
   public DigitalInputChannel(String name, int index, DeviceInterface device) {
     super(name, index, "", device);
     // Calculate the bit mask based on the index.
-    int bitIndex = index;
-    while (bitIndex > 8) {
-      bitIndex -= 8;
-      byteIndex++;
-    }
-    bitMask = (byte) (1 << bitIndex);
+//    int bitIndex = index;
+//    while (bitIndex > 8) {
+//      bitIndex -= 8;
+//      byteIndex++;
+//    }
+//    bitMask = (byte) (1 << bitIndex);
+    bitMask = 1 << index;
   }
 
   private byte latestValue;
 
   @Override
   public void add(long time, Byte value) {
+    latestValue = value;
+  }
+
+  public void setValue(Byte value){
     latestValue = value;
   }
 
@@ -56,15 +62,23 @@ public class DigitalInputChannel extends Channel implements InputInterface<Byte>
        */
   @Override
   public Type getType() {
-    return Type.DIGITAL_IN;
+    return Type.DIGITAL_IO;
   }
 
-  public byte getBitMask() {
+  public int getBitMask() {
     return bitMask;
   }
 
   public int getByteIndex() {
     return byteIndex;
+  }
+
+  public void setDirection(DeviceInterface.Direction direction){
+    this.direction = direction;
+  }
+
+  public DeviceInterface.Direction getDirection(){
+    return direction;
   }
 
 }

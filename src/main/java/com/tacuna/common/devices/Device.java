@@ -1,11 +1,11 @@
 package com.tacuna.common.devices;
 
+import com.tacuna.common.devices.channels.ChannelInterface;
+
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
-import com.tacuna.common.devices.channels.ChannelInterface;
 
 /**
  * Abstract Device class. Contains common method implementations used on all
@@ -13,168 +13,196 @@ import com.tacuna.common.devices.channels.ChannelInterface;
  */
 public abstract class Device implements DeviceInterface {
 
-  public static Collection<DeviceInterface> filterStreaming(Collection<DeviceInterface> target) {
-    Collection<DeviceInterface> result = new ArrayList<DeviceInterface>();
-    for (DeviceInterface element: target) {
-      if (element.isStreaming()) {
-        result.add(element);
-      }
+    public static Collection<DeviceInterface> filterStreaming(Collection<DeviceInterface> target) {
+        Collection<DeviceInterface> result = new ArrayList<DeviceInterface>();
+        for (DeviceInterface element : target) {
+            if (element.isStreaming()) {
+                result.add(element);
+            }
+        }
+        return result;
     }
-    return result;
-  }
 
-  public static final double ADC_RESOLUTION = 131072.0;
-  public static final int DEFAULT_SAMPLES_PER_SECOND = 100;
+    public static final double ADC_RESOLUTION = 131072.0;
+    public static final int DEFAULT_SAMPLES_PER_SECOND = 100;
 
-  private String deviceName;
-  private String macAddress;
-  private InetSocketAddress address;
+    private String deviceName;
+    private String macAddress;
+    private InetSocketAddress address;
+    private int battery = 0;
+    private PowerStatus powerStatus = PowerStatus.UNKNOWN;
 
-  private int adcRes = 0;
-  private Direction dioDirection = Direction.Input;
+    private int adcRes = 0;
+    private Direction dioDirection = Direction.Input;
 
-  @Override
-  public String getDeviceName() {
-    return deviceName;
-  }
-
-  @Override
-  public int getDeviceId() {
-    return getMacAddress().hashCode();
-  }
-
-  @Override
-  public void setDeviceName(String name) {
-    this.deviceName = name;
-  }
-
-  @Override
-  public String getMacAddress() {
-    return macAddress;
-  }
-
-  @Override
-  public void setMacAddress(String macAddress) {
-    this.macAddress = macAddress;
-  }
-
-  @Override
-  public InetSocketAddress getNetworkAddress() {
-    return address;
-  }
-
-  @Override
-  public void setNetworkAddress(InetSocketAddress networkAddress) {
-    this.address = networkAddress;
-  }
-
-  @Override
-  public void setAdcResolution(int resolution) {
-    this.adcRes = resolution;
-  }
-
-  @Override
-  public int getAdcResolution() {
-    return adcRes;
-  }
-
-  public void setDioChannelDirection(Direction direction) {
-    dioDirection = direction;
-  }
-
-  public Direction getDioChannelDirection() {
-    return dioDirection;
-  }
-
-  public void setIsStreaming(boolean isStreaming) {
-    this.isStreaming = isStreaming;
-  }
-
-  private boolean isStreaming = false;
-  @Override
-  public boolean isStreaming() {
-    return isStreaming;
-  }
-
-  protected List<ChannelInterface> analogMathChannels = new ArrayList<ChannelInterface>();
-  public void addMathChannel(ChannelInterface ch){
-    analogMathChannels.add(ch);
-  }
-
-  public int getNumberOfMathChannels(){
-    return analogMathChannels.size();
-  }
-
-  @Override
-  public int getNumberOfChannels(){
-    return getChannels().size();
-  }
-
-  @Override
-  public boolean isConnected() {
-    return (getConnection() == null) ? false
-            : getConnection().isConnected();
-  }
-
-  protected int getActiveChannelMask() {
-    int activeChannelBitMask = 0;
-    Collection<ChannelInterface> channels = getChannels();
-    for (ChannelInterface ch : channels) {
-      if (ch.isActive()) {
-        int channelMask = 1 << ch.getDeviceIndex();
-        activeChannelBitMask = activeChannelBitMask | channelMask;
-      }
+    @Override
+    public boolean isDiStreaming() {
+        return diStreaming;
     }
-    return activeChannelBitMask;
-  }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see java.lang.Object#hashCode()
-   */
-  @Override
-  public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result + ((address == null) ? 0 : address.hashCode());
-    result = prime * result
-            + ((deviceName == null) ? 0 : deviceName.hashCode());
-    result = prime * result
-            + ((macAddress == null) ? 0 : macAddress.hashCode());
-    return result;
-  }
+    @Override
+    public void setDiStreaming(boolean diStreaming) {
+        this.diStreaming = diStreaming;
+    }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see java.lang.Object#equals(java.lang.Object)
-   */
-  @Override
-  public boolean equals(Object obj) {
-    if (this == obj)
-      return true;
-    if (obj == null)
-      return false;
-    if (getClass() != obj.getClass())
-      return false;
-    Device other = (Device) obj;
-    if (address == null) {
-      if (other.address != null)
-        return false;
-    } else if (!address.equals(other.address))
-      return false;
-    if (deviceName == null) {
-      if (other.deviceName != null)
-        return false;
-    } else if (!deviceName.equals(other.deviceName))
-      return false;
-    if (macAddress == null) {
-      if (other.macAddress != null)
-        return false;
-    } else if (!macAddress.equals(other.macAddress))
-      return false;
-    return true;
-  }
+    private boolean diStreaming = true;
+
+    @Override
+    public String getDeviceName() {
+        return deviceName;
+    }
+
+    @Override
+    public int getDeviceId() {
+        return getMacAddress().hashCode();
+    }
+
+    @Override
+    public void setDeviceName(String name) {
+        this.deviceName = name;
+    }
+
+    @Override
+    public String getMacAddress() {
+        return macAddress;
+    }
+
+    @Override
+    public void setMacAddress(String macAddress) {
+        this.macAddress = macAddress;
+    }
+
+    @Override
+    public InetSocketAddress getNetworkAddress() {
+        return address;
+    }
+
+    @Override
+    public void setNetworkAddress(InetSocketAddress networkAddress) {
+        this.address = networkAddress;
+    }
+
+    @Override
+    public void setAdcResolution(int resolution) {
+        this.adcRes = resolution;
+    }
+
+    @Override
+    public int getAdcResolution() {
+        return adcRes;
+    }
+
+    @Override
+    public int getBatteryCharge() {
+        return battery;
+    }
+
+    @Override
+    public void setBatteryCharge(int charge) {
+        this.battery = charge;
+    }
+
+    @Override
+    public PowerStatus getPowerStatus() {
+        return powerStatus;
+    }
+
+    @Override
+    public void setPowerStatus(PowerStatus status) {
+        this.powerStatus = status;
+    }
+
+    public void setIsStreaming(boolean isStreaming) {
+        this.isStreaming = isStreaming;
+    }
+
+    private boolean isStreaming = false;
+
+    @Override
+    public boolean isStreaming() {
+        return isStreaming;
+    }
+
+    protected List<ChannelInterface> analogMathChannels = new ArrayList<ChannelInterface>();
+
+    public void addMathChannel(ChannelInterface ch) {
+        analogMathChannels.add(ch);
+    }
+
+    public int getNumberOfMathChannels() {
+        return analogMathChannels.size();
+    }
+
+    @Override
+    public int getNumberOfChannels() {
+        return getChannels().size();
+    }
+
+    @Override
+    public boolean isConnected() {
+        return (getConnection() == null) ? false
+                : getConnection().isConnected();
+    }
+
+    protected int getActiveChannelMask() {
+        int activeChannelBitMask = 0;
+        Collection<ChannelInterface> channels = getChannels();
+        for (ChannelInterface ch : channels) {
+            if (ch.isActive()) {
+                int channelMask = 1 << ch.getDeviceIndex();
+                activeChannelBitMask = activeChannelBitMask | channelMask;
+            }
+        }
+        return activeChannelBitMask;
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see java.lang.Object#hashCode()
+     */
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((address == null) ? 0 : address.hashCode());
+        result = prime * result
+                + ((deviceName == null) ? 0 : deviceName.hashCode());
+        result = prime * result
+                + ((macAddress == null) ? 0 : macAddress.hashCode());
+        return result;
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        Device other = (Device) obj;
+        if (address == null) {
+            if (other.address != null)
+                return false;
+        } else if (!address.equals(other.address))
+            return false;
+        if (deviceName == null) {
+            if (other.deviceName != null)
+                return false;
+        } else if (!deviceName.equals(other.deviceName))
+            return false;
+        if (macAddress == null) {
+            if (other.macAddress != null)
+                return false;
+        } else if (!macAddress.equals(other.macAddress))
+            return false;
+        return true;
+    }
 
 }

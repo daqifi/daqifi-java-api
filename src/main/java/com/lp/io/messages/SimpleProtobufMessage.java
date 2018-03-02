@@ -133,4 +133,8 @@ public class SimpleProtobufMessage extends Message {
     }
     return NO_DIGITAL_DATA;
   }
+
+  public boolean isSysInfoResponse(){
+    return protoMessage.hasDevicePn();
+  }
 }

@@ -138,13 +138,12 @@ public interface DeviceInterface extends MessageProducer {
     int getAdcResolution();
 
     /**
-     * Sets the DIO channel direction.
+     * Sets the DI channel streaming.
      *
-     * @param direction
+     * @param diStreaming
      */
-    void setDioChannelDirection(Direction direction);
-
-    Direction getDioChannelDirection();
+    void setDiStreaming(boolean diStreaming);
+    boolean isDiStreaming();
 
     /**
      * Connects to the physical device using the network address
@@ -171,6 +170,25 @@ public interface DeviceInterface extends MessageProducer {
      */
     SocketConnector getConnection();
 
+    /**
+     * Returns the battery charge percentage
+     * @return
+     */
+    int getBatteryCharge();
+    void setBatteryCharge(int charge);
+
+    enum PowerStatus {
+        UNKNOWN,
+        BATTERY,
+        USB
+    }
+
+    /**
+     * Returns the devices power status.
+     * @return
+     */
+    PowerStatus getPowerStatus();
+    void setPowerStatus(PowerStatus status);
 
     void startStreaming();
 
@@ -179,6 +197,8 @@ public interface DeviceInterface extends MessageProducer {
     boolean isStreaming();
 
     boolean isConnected();
+
+    void updateNetworkSettings(String ssid, int securityType, String password);
 
     /**
      * Adds a buffer that parsed messages will be added to.

@@ -212,4 +212,6 @@ public class FourChannelTestDevice extends Device implements DeviceInterface {
     router.removeOutputBuffer(buffer);
   }
 
+  @Override
+  public void updateNetworkSettings(String ssid, int securityType, String password){}
 }

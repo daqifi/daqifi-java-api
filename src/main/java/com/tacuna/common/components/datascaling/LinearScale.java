@@ -5,17 +5,19 @@ package com.tacuna.common.components.datascaling;
  */
 public class LinearScale implements DataScale {
 
-    public LinearScale(double m, double b) {
+    final private double m;
+    final private double b;
+    final private DataScale base;
+
+    public LinearScale(double m, double b, DataScale base) {
         this.m = m;
         this.b = b;
+        this.base = base;
     }
-
-    private double m;
-    private double b;
 
     @Override
     public double convert(int sample, int extAdcRange) {
-        return m * DtoV.convertToVoltage(sample,extAdcRange) + b;
+        return m * base.convert(sample,extAdcRange) + b;
     }
 
     @Override
@@ -26,5 +28,10 @@ public class LinearScale implements DataScale {
     @Override
     public String getName() {
         return "LINEAR";
+    }
+
+    @Override
+    public DataScale getBase() {
+        return base;
     }
 }

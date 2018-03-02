@@ -1,13 +1,13 @@
 // Copyright 2013 Marc Bernardini.
 package com.lp.io.messages;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.net.DatagramPacket;
-import java.util.Arrays;
 import java.util.logging.Logger;
 
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
-import com.tacuna.common.messages.ProtoMessage.WiFiDAQOutMessage;
 import com.tacuna.common.messages.ProtoMessageV2;
 
 /**
@@ -49,9 +49,8 @@ public class DeviceBroadcastMessage extends Message {
   public DeviceBroadcastMessage(final DatagramPacket msg) throws InvalidProtocolBufferException {
     super(null);
     this.packet = msg;
-    //try {
-      byte[] data = msg.getData();
-      this.message = ProtoMessageV2.DaqifiOutMessage.parseFrom(Arrays.copyOf(data, msg.getLength()));
+    try {
+      this.message = ProtoMessageV2.DaqifiOutMessage.parseDelimitedFrom(new ByteArrayInputStream(msg.getData(), 0, msg.getLength()));
 
       StringBuilder sb = new StringBuilder();
       ByteString mac = this.message.getMacAddr();
@@ -60,12 +59,16 @@ public class DeviceBroadcastMessage extends Message {
       }
       this.mac = sb.toString();
       this.name = this.message.getHostName();
-
-//    } catch (InvalidProtocolBufferException err) {
-//      log.warning(err.toString());
-//      this.name = "Unknown";
-//      this.mac = "Unknown";
-//    }
+      log.info(this.message.toString());
+    } catch (InvalidProtocolBufferException err) {
+      log.warning(err.toString());
+      log.info(print(msg.getData()));
+      throw err;
+    } catch (IOException err){
+      log.warning(err.toString());
+      this.name = "Unknown";
+      this.mac = "Unknown";
+    }
     // parseAndSetData(msg.getData());
   }
 
