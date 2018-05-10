@@ -51,6 +51,7 @@ public class MessageChannelRouter implements
     @Override
     public void onMessage(final SimpleProtobufMessage msg) {
         if(msg.isSysInfoResponse()){
+            System.out.println(msg.getProtoMessage().toString());
             DeviceFactory.setDeviceStatus(msg.getProtoMessage(), device);
             return;
         }
@@ -63,7 +64,6 @@ public class MessageChannelRouter implements
         long measurementTime = msg.getDeviceTimestamp(TimeUnit.MICROSECONDS);
         for (ChannelInterface c : aiChannels) {
             if (c.isActive()) {
-                System.out.println(String.format("%d: %d (%d)", c.getDeviceIndex(), msg.getAnalogInValue(activeIndex), adcResolution));
                 float value = (float) ((AnalogInputChannel) c).convert(msg.getAnalogInValue(activeIndex), adcResolution);
                 ((AnalogInputChannel) c).add(measurementTime, value);
                 activeIndex++;

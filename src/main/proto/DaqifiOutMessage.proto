@@ -27,9 +27,9 @@ message DaqifiOutMessage
 	// Analog In Information
 	optional uint32 analog_in_port_num = 17;				//	Number of analog in ports (public)
 	optional uint32 analog_in_port_num_priv = 18;			//	Number of analog in ports (private)
-    optional bytes analog_in_port_type = 19;				//  Analog in port type
+  optional bytes analog_in_port_type = 19;				//  Analog in port type
 	optional bytes analog_in_port_av_rse = 20;				//  Analog in port referenced single ended (RSE)
-    optional bytes analog_in_port_rse = 21;					//  Analog in port referenced single ended (RSE)
+  optional bytes analog_in_port_rse = 21;					//  Analog in port referenced single ended (RSE)
 	optional bytes analog_in_port_enabled = 22;				//  Analog in port enabled list
 	repeated float analog_in_port_av_range = 23;			//	Analog in port voltage range (volts span:RSE 0 to range, NON-RSE -(range/2) to (range/2))
 	repeated float analog_in_port_av_range_priv = 24;		//	Private analog in port voltage range (volts span:RSE 0 to range, NON-RSE -(range/2) to (range/2))
@@ -46,15 +46,15 @@ message DaqifiOutMessage
 
 	// Digital I/O Information
 	optional uint32 digital_port_num = 35;					//	Number of digital IO ports (public)
-    optional bytes digital_port_type = 36;					//	Digital IP port type
+  optional bytes digital_port_type = 36;					//	Digital IP port type
 	optional bytes digital_port_dir = 37;					//	Digital IO port direction (bitwise binary representation LSB=ch0)
 
 	// Analog Out Information
-    optional uint32 analog_out_port_num = 38;				//  Number of analog out ports (DAC)
-    optional bytes analog_out_port_type = 39;				//  Type of analog out port (DAC)
+  optional uint32 analog_out_port_num = 38;				//  Number of analog out ports (DAC)
+  optional bytes analog_out_port_type = 39;				//  Type of analog out port (DAC)
 	optional uint32 analog_out_res = 40;					//  Analog out port (DAC) resolution (bits)
-    repeated float analog_out_port_av_range = 41;			//  Analog out port available range (volts span: 0 to range) (DAC)
-    optional float analog_out_port_range = 42;				//  Analog out port range (volts span: 0 to range) (DAC)
+  repeated float analog_out_port_av_range = 41;			//  Analog out port available range (volts span: 0 to range) (DAC)
+  optional float analog_out_port_range = 42;				//  Analog out port range (volts span: 0 to range) (DAC)
 
 	// IPv4 Device Information
 	optional bytes ip_addr = 43;							//  Device IP address
@@ -76,18 +76,22 @@ message DaqifiOutMessage
 	optional string host_name = 55;							//  Device HostName
 	optional uint32 device_port = 56;						//	Device port
 	optional string friendly_device_name = 57;				//	Device friendly name
-	optional string ssid = 58;								//  SSID device is to connect to
-	optional uint32 wifi_security_mode = 59;				//  Device WiFi security mode
+	optional string ssid = 58;								//  Current SSID device is to connect to
+  optional uint32 ssid_strength = 59;                     //  Current SSID strength out of 255
+	optional uint32 wifi_security_mode = 60;				//  Device WiFi security mode
+  optional uint32 wifi_inf_mode = 61;                     //  Current SSID infrastructure mode
 
-	// Aviable SSID Information
-	repeated string av_ssid = 60;							//  Available SSIDs to connect to
-	optional bytes av_ssid_strength = 61;					//  Available SSID strength out of 255
-	optional bytes av_ssid_security_mode = 62;				//	Available SSID security mode
+	// Aviable Network Information
+	repeated string av_ssid = 62;							//  Available SSIDs to connect to
+	repeated uint32 av_ssid_strength = 63;					//  Available SSID strength out of 255
+	repeated uint32 av_wifi_security_mode = 64;				//	Available WiFi network security mode
+  repeated uint32 av_wifi_inf_mode = 65;                  //  Available WiFi network infrastructure mode
 
 	// Device Hardware/Firmware Information
-	optional string device_pn = 63;							//  Alphanumeric device P/N
-	optional string device_hw_rev = 64;						//  Device hardware revision
-	optional string device_fw_rev = 65;						//  Device firmware revision
+	optional string device_pn = 66;							//  Alphanumeric device P/N
+	optional string device_hw_rev = 67;						//  Device hardware revision
+	optional string device_fw_rev = 68;						//  Device firmware revision
+  optional uint64 device_sn = 69;                         //  Device serial number
 }
 
 option cc_enable_arenas = true;

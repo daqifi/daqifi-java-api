@@ -5,6 +5,7 @@ import com.tacuna.common.devices.channels.ChannelInterface;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -33,7 +34,7 @@ public abstract class Device implements DeviceInterface {
     private PowerStatus powerStatus = PowerStatus.UNKNOWN;
 
     private int adcRes = 0;
-    private Direction dioDirection = Direction.Input;
+    private Collection<AvailableWifiNetwork> availableWifiNetworks = Collections.emptyList();
 
     @Override
     public boolean isDiStreaming() {
@@ -142,6 +143,16 @@ public abstract class Device implements DeviceInterface {
     public boolean isConnected() {
         return (getConnection() == null) ? false
                 : getConnection().isConnected();
+    }
+
+    @Override
+    public Collection<AvailableWifiNetwork> getAvailableWifiNetworks() {
+        return availableWifiNetworks;
+    }
+
+    @Override
+    public void setAvailableWifiNetworks(Collection<AvailableWifiNetwork> networks) {
+        availableWifiNetworks = networks;
     }
 
     protected int getActiveChannelMask() {

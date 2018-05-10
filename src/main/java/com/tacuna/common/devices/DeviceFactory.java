@@ -2,8 +2,6 @@
 package com.tacuna.common.devices;
 
 import com.lp.io.messages.DeviceBroadcastMessage;
-import com.lp.io.messages.Message;
-import com.tacuna.common.components.datascaling.DtoV;
 import com.tacuna.common.devices.channels.AnalogInputChannel;
 import com.tacuna.common.devices.channels.Channel;
 import com.tacuna.common.devices.channels.ChannelInterface;
@@ -13,14 +11,12 @@ import com.tacuna.common.messages.ProtoMessageV2;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
-
-import static com.tacuna.common.devices.channels.Channel.filter;
 
 /**
  * The Device factory is used to create instances of DeviceInterfaces that match
@@ -119,6 +115,9 @@ public class DeviceFactory {
 
         }
 
+        //
+        // Calibrations:
+        //
         Iterator<Float> calBIter = sysinfo.getAnalogInCalBList().iterator();
         Iterator<Float> calMIter = sysinfo.getAnalogInCalMList().iterator();
         Iterator<Float> analogInPortRangeIter = sysinfo.getAnalogInPortRangeList().iterator();
@@ -129,6 +128,20 @@ public class DeviceFactory {
             AnalogInputChannel ch = (AnalogInputChannel)channelIter.next();
             ch.setCalibrationValues(analogInPortRangeIter.next(), analogInIntScaleMListIter.next(),calMIter.next(), calBIter.next());
         }
+
+        //
+        // WiFi Networks:
+        //
+        Iterator<String> ssidIter = sysinfo.getAvSsidList().iterator();
+        Iterator<Integer> ssidStrength = sysinfo.getAvSsidStrengthList().iterator();
+        Iterator<Integer> ssidSecurityMode = sysinfo.getAvWifiSecurityModeList().iterator();
+
+        ArrayList<DeviceInterface.AvailableWifiNetwork> availableWifiNetworks = new ArrayList<>(sysinfo.getAvSsidCount());
+        while (ssidIter.hasNext() && ssidStrength.hasNext() && ssidSecurityMode.hasNext()){
+            availableWifiNetworks.add(new DeviceInterface.AvailableWifiNetwork(ssidIter.next(), ssidStrength.next(), ssidSecurityMode.next()));
+        }
+        device.setAvailableWifiNetworks(availableWifiNetworks);
+
         return device;
     }
 

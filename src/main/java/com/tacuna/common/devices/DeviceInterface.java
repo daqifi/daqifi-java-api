@@ -24,6 +24,21 @@ public interface DeviceInterface extends MessageProducer {
     }
 
     /**
+     * POJO for holding Available Wifi networks
+     */
+    class AvailableWifiNetwork {
+        public final String ssid;
+        public final int strength;
+        public final int securityMode;
+
+        public AvailableWifiNetwork(String ssid, int strength, int securityMode) {
+            this.ssid = ssid;
+            this.strength = strength;
+            this.securityMode = securityMode;
+        }
+    }
+
+    /**
      * Returns the type of the device. TBD on what this will actually be but it
      * should unique identify the type of device such that the application can
      * use this to determine device characteristics.
@@ -199,6 +214,8 @@ public interface DeviceInterface extends MessageProducer {
     boolean isConnected();
 
     void updateNetworkSettings(String ssid, int securityType, String password);
+    Collection<AvailableWifiNetwork> getAvailableWifiNetworks();
+    void setAvailableWifiNetworks(final Collection<AvailableWifiNetwork> networks);
 
     /**
      * Adds a buffer that parsed messages will be added to.
