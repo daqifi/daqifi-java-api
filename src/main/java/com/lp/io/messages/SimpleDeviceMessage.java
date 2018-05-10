@@ -1,7 +1,6 @@
 package com.lp.io.messages;
 
-import com.tacuna.common.devices.channels.InputInterface;
-import com.tacuna.common.devices.channels.ChannelInterface;
+import com.daqifi.common.devices.channels.ChannelInterface;
 
 /**
  * Data message type sent by the sensor device. The single line message is

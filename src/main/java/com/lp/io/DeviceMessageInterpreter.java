@@ -3,8 +3,7 @@ package com.lp.io;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.lp.io.messages.SimpleDeviceMessage;
 import com.lp.io.messages.SimpleProtobufMessage;
-import com.tacuna.common.messages.ProtoMessage.WiFiDAQOutMessage;
-import com.tacuna.common.messages.ProtoMessageV2;
+import com.daqifi.common.messages.ProtoMessageV2;
 
 import java.io.IOException;
 import java.io.InputStream;

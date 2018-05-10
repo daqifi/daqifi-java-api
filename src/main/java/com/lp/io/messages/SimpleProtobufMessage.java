@@ -1,7 +1,6 @@
 package com.lp.io.messages;
 
-import com.tacuna.common.messages.ProtoMessage.WiFiDAQOutMessage;
-import com.tacuna.common.messages.ProtoMessageV2;
+import com.daqifi.common.messages.ProtoMessageV2;
 
 import java.util.concurrent.TimeUnit;
 

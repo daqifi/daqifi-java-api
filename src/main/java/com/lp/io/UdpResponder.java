@@ -7,11 +7,9 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
 import java.util.List;
-import java.util.Set;
 import java.util.logging.Logger;
 
-import com.tacuna.common.messages.ProtoMessage.WiFiDAQOutMessage;
-import com.tacuna.common.messages.ProtoMessageV2;
+import com.daqifi.common.messages.ProtoMessageV2;
 
 /**
  * UDP Responder class is used to respond to the UdpBroadcast. This class is

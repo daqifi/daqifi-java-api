@@ -95,6 +95,6 @@ message DaqifiOutMessage
 }
 
 option cc_enable_arenas = true;
-option java_package = "com.tacuna.common.messages";
+option java_package = "com.daqifi.common.messages";
 option java_outer_classname = "ProtoMessageV2";
 option optimize_for = LITE_RUNTIME;

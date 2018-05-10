@@ -12,24 +12,19 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.security.SecureRandom;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.Enumeration;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 import com.google.protobuf.ByteString;
-import com.lp.io.generators.CompositeGenerator;
-import com.lp.io.generators.FuzzGenerator;
 import com.lp.io.generators.Generator;
-import com.lp.io.generators.Limiter;
 import com.lp.io.generators.SineGenerator;
-import com.tacuna.common.components.DtoAConverter;
-import com.tacuna.common.devices.AD7195W;
-import com.tacuna.common.messages.ProtoMessage.WiFiDAQOutMessage;
-import com.tacuna.common.messages.ProtoMessage.WiFiDAQOutMessage.Builder;
-import com.tacuna.common.messages.ProtoMessageV2;
+import com.daqifi.common.components.DtoAConverter;
+import com.daqifi.common.devices.AD7195W;
+import com.daqifi.common.messages.ProtoMessage.WiFiDAQOutMessage;
+import com.daqifi.common.messages.ProtoMessage.WiFiDAQOutMessage.Builder;
+import com.daqifi.common.messages.ProtoMessageV2;
 
 /**
  * @author marc

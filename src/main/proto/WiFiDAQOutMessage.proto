@@ -33,6 +33,6 @@ message WiFiDAQOutMessage
 	optional uint32 device_port = 27;						//	Device port
 }
 
-option java_package = "com.tacuna.common.messages";
+option java_package = "com.daqifi.common.messages";
 option java_outer_classname = "ProtoMessage";
 option optimize_for = LITE_RUNTIME;

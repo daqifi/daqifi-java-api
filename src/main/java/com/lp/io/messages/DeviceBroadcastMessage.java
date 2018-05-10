@@ -8,7 +8,7 @@ import java.util.logging.Logger;
 
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
-import com.tacuna.common.messages.ProtoMessageV2;
+import com.daqifi.common.messages.ProtoMessageV2;
 
 /**
  * Message type for the device broadcast messages. Wraps the UDP packet and

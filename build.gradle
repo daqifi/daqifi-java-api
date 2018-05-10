@@ -10,7 +10,7 @@ task fatJar(type: Jar) {
 	manifest {
         attributes 'Implementation-Title': 'DAQifi Emulator',
         	'Implementation-Version': version,
-        	'Main-Class': 'com.tacuna.common.devices.Emulator'
+        	'Main-Class': 'com.daqifi.common.devices.Emulator'
     }
     baseName = project.name
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
