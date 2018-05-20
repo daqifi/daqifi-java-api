@@ -1,4 +1,4 @@
-package main.java.com.daqifi.io;
+package com.daqifi.io;
 
 import java.util.List;
 import java.util.logging.Level;

@@ -1,11 +1,6 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
+package com.daqifi.io;
 
-package main.java.com.daqifi.io;
-
-import main.java.com.daqifi.io.messages.Message;
+import com.daqifi.io.messages.Message;
 
 /**
  * Message consumer interface used by asynch consumers

@@ -1,4 +1,4 @@
-package main.java.com.daqifi.io;
+package com.daqifi.io;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -6,8 +6,8 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.HashSet;
 
-import main.java.com.daqifi.io.messages.DeviceBroadcastMessage;
-import main.java.com.daqifi.io.messages.Message;
+import com.daqifi.io.messages.DeviceBroadcastMessage;
+import com.daqifi.io.messages.Message;
 
 /**
  * Bare bones command line client for the WIFI DAQ devices. You can run this

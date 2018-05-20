@@ -1,4 +1,4 @@
-package main.java.com.daqifi.io.messages;
+package com.daqifi.io.messages;
 
 /**
  * Stop message is used to notify threads to stop.

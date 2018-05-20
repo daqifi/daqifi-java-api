@@ -6,12 +6,12 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Logger;
 
-import main.java.com.daqifi.io.DataInterpreter;
-import main.java.com.daqifi.io.DeviceMessageInterpreter;
-import main.java.com.daqifi.io.MessageConsumer;
-import main.java.com.daqifi.io.SocketConnector;
-import main.java.com.daqifi.io.messages.Message;
-import main.java.com.daqifi.io.messages.SimpleDeviceMessage;
+import com.daqifi.io.DataInterpreter;
+import com.daqifi.io.DeviceMessageInterpreter;
+import com.daqifi.io.MessageConsumer;
+import com.daqifi.io.SocketConnector;
+import com.daqifi.io.messages.Message;
+import com.daqifi.io.messages.SimpleDeviceMessage;
 
 /**
  * Since the SCPI commands aren't truly messaged based, the SCPI message

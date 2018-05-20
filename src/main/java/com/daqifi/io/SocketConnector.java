@@ -1,5 +1,5 @@
 // Copyright 2013 Marc Bernardini.
-package main.java.com.daqifi.io;
+package com.daqifi.io;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;

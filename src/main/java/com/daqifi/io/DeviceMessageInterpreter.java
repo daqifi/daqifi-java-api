@@ -1,8 +1,8 @@
-package main.java.com.daqifi.io;
+package com.daqifi.io;
 
 import com.google.protobuf.InvalidProtocolBufferException;
-import main.java.com.daqifi.io.messages.SimpleDeviceMessage;
-import main.java.com.daqifi.io.messages.SimpleProtobufMessage;
+import com.daqifi.io.messages.SimpleDeviceMessage;
+import com.daqifi.io.messages.SimpleProtobufMessage;
 import com.daqifi.common.messages.ProtoMessageV2;
 
 import java.io.IOException;

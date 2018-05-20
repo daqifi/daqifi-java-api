@@ -1,4 +1,4 @@
-package main.java.com.daqifi.io.messages;
+package com.daqifi.io.messages;
 
 /**
  * Message generated when a measurement is made.

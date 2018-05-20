@@ -13,8 +13,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Logger;
 
-import main.java.com.daqifi.io.SocketConnector;
-import main.java.com.daqifi.io.UdpBroadcast;
+import com.daqifi.io.SocketConnector;
+import com.daqifi.io.UdpBroadcast;
 import com.daqifi.common.devices.AD7195W;
 import com.daqifi.common.devices.channels.ChannelInterface;
 import com.daqifi.common.devices.DeviceCommandSchedule;

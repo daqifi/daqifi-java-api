@@ -1,5 +1,5 @@
 // Copyright 2013 Marc Bernardini.
-package main.java.com.daqifi.io;
+package com.daqifi.io;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -10,7 +10,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.google.protobuf.InvalidProtocolBufferException;
-import main.java.com.daqifi.io.messages.DeviceBroadcastMessage;
+import com.daqifi.io.messages.DeviceBroadcastMessage;
 
 /**
  * The UDP Broadcast class handles setting up and sending UDP broadcasts. This
