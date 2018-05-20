@@ -5,6 +5,8 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 
+import main.java.com.daqifi.io.MessageConsumer;
+import main.java.com.daqifi.io.UdpBroadcast;
 import mockit.Injectable;
 import mockit.Mocked;
 import mockit.NonStrictExpectations;
@@ -14,7 +16,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.lp.io.messages.DeviceBroadcastMessage;
+import main.java.com.daqifi.io.messages.DeviceBroadcastMessage;
 
 /**
  * Unit test for the UdpBroadcast class.

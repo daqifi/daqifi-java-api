@@ -9,7 +9,7 @@ import java.net.InetAddress;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.lp.io.messages.DeviceBroadcastMessage;
+import main.java.com.daqifi.io.messages.DeviceBroadcastMessage;
 
 public class DeviceBroadcastMessageTest {
 

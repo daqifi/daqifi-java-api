@@ -1,5 +1,5 @@
 // Copyright Marc Bernardini 2013
-package com.lp.io;
+package main.java.com.daqifi.io;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -8,7 +8,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.lp.io.messages.Message;
+import main.java.com.daqifi.io.messages.Message;
 
 /**
  * The DataInterpreter produces messages using data received from a source.

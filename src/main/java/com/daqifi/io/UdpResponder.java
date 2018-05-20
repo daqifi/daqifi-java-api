@@ -1,5 +1,5 @@
 // Copyright 2013 Marc Bernardini.
-package com.lp.io;
+package main.java.com.daqifi.io;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

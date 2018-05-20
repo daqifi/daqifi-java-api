@@ -1,4 +1,4 @@
-package com.lp.io.generators;
+package main.java.com.daqifi.io.generators;
 
 import java.util.ArrayList;
 import java.util.Arrays;

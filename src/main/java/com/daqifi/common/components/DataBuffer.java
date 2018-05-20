@@ -3,7 +3,7 @@ package com.daqifi.common.components;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
-import com.lp.io.messages.Message;
+import main.java.com.daqifi.io.messages.Message;
 
 /**
  * Data buffer used in the application. Data buffers are used to transfer messages

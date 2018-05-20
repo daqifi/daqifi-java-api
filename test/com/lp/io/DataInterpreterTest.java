@@ -3,13 +3,15 @@ package com.lp.io;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
+import main.java.com.daqifi.io.DataInterpreter;
+import main.java.com.daqifi.io.MessageConsumer;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.lp.io.messages.Message;
+import main.java.com.daqifi.io.messages.Message;
 
 /**
  * 

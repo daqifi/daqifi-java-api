@@ -1,7 +1,7 @@
 // Copyright 2013 Marc Bernardini.
 package com.daqifi.common.devices;
 
-import com.lp.io.messages.DeviceBroadcastMessage;
+import main.java.com.daqifi.io.messages.DeviceBroadcastMessage;
 import com.daqifi.common.devices.channels.AnalogInputChannel;
 import com.daqifi.common.devices.channels.Channel;
 import com.daqifi.common.devices.channels.ChannelInterface;

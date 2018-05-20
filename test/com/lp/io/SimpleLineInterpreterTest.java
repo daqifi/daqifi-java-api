@@ -11,10 +11,12 @@ import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
+import main.java.com.daqifi.io.MessageConsumer;
+import main.java.com.daqifi.io.SimpleLineInterpreter;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.lp.io.messages.Message;
+import main.java.com.daqifi.io.messages.Message;
 
 /**
  * 

@@ -1,4 +1,4 @@
-package com.lp.io;
+package main.java.com.daqifi.io;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -18,8 +18,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 import com.google.protobuf.ByteString;
-import com.lp.io.generators.Generator;
-import com.lp.io.generators.SineGenerator;
+import main.java.com.daqifi.io.generators.Generator;
+import main.java.com.daqifi.io.generators.SineGenerator;
 import com.daqifi.common.components.DtoAConverter;
 import com.daqifi.common.devices.AD7195W;
 import com.daqifi.common.messages.ProtoMessage.WiFiDAQOutMessage;

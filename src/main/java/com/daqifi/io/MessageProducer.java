@@ -3,9 +3,9 @@
  * and open the template in the editor.
  */
 
-package com.lp.io;
+package main.java.com.daqifi.io;
 
-import com.lp.io.messages.Message;
+import main.java.com.daqifi.io.messages.Message;
 
 /**
  * Message Producer interface. Message producer implementations allow objects to

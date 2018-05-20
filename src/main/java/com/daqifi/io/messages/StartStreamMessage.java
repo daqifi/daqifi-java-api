@@ -1,4 +1,4 @@
-package com.lp.io.messages;
+package main.java.com.daqifi.io.messages;
 
 import java.util.ArrayList;
 import java.util.Collection;

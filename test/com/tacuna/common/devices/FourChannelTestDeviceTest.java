@@ -2,15 +2,14 @@
 package com.tacuna.common.devices;
 
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
 
 import mockit.Mocked;
 import mockit.NonStrictExpectations;
 
 import org.junit.Test;
 
-import com.lp.io.DataInterpreter;
-import com.lp.io.SocketConnector;
+import main.java.com.daqifi.io.DataInterpreter;
+import main.java.com.daqifi.io.SocketConnector;
 
 public class FourChannelTestDeviceTest {
 

@@ -11,7 +11,7 @@ import mockit.NonStrictExpectations;
 
 import org.junit.Test;
 
-import com.lp.io.messages.DeviceBroadcastMessage;
+import main.java.com.daqifi.io.messages.DeviceBroadcastMessage;
 
 public class DeviceFactoryTest {
 

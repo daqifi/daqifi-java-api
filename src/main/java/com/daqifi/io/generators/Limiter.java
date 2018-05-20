@@ -1,4 +1,4 @@
-package com.lp.io.generators;
+package main.java.com.daqifi.io.generators;
 
 public class Limiter implements Generator {
 

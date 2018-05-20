@@ -1,4 +1,4 @@
-package com.lp.io.generators;
+package main.java.com.daqifi.io.generators;
 
 /**
  * Created by Marc on 1/9/15.

@@ -9,6 +9,8 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import main.java.com.daqifi.io.DeviceMessageInterpreter;
+import main.java.com.daqifi.io.MessageConsumer;
 import mockit.Injectable;
 import mockit.Verifications;
 
@@ -16,8 +18,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.lp.io.messages.Message;
-import com.lp.io.messages.SimpleDeviceMessage;
+import main.java.com.daqifi.io.messages.Message;
+import main.java.com.daqifi.io.messages.SimpleDeviceMessage;
 
 public class DeviceMessageInterpreterTest {
 

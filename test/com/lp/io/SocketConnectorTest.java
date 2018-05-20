@@ -13,6 +13,8 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.net.Socket;
 
+import main.java.com.daqifi.io.DataInterpreter;
+import main.java.com.daqifi.io.SocketConnector;
 import mockit.Mocked;
 import mockit.NonStrictExpectations;
 import mockit.Tested;

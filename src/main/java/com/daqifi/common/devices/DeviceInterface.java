@@ -1,8 +1,8 @@
 // Copyright 2013 Marc Bernardini.
 package com.daqifi.common.devices;
 
-import com.lp.io.MessageProducer;
-import com.lp.io.SocketConnector;
+import main.java.com.daqifi.io.MessageProducer;
+import main.java.com.daqifi.io.SocketConnector;
 import com.daqifi.common.components.DataBuffer;
 import com.daqifi.common.devices.channels.ChannelInterface;
 import com.daqifi.common.devices.scpi.Command;

@@ -4,7 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import com.lp.io.messages.SimpleDeviceMessage;
+import main.java.com.daqifi.io.messages.SimpleDeviceMessage;
 
 public class SimpleDeviceMessageTest {
 

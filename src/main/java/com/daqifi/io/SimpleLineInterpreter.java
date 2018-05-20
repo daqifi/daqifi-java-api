@@ -3,14 +3,14 @@
  * and open the template in the editor.
  */
 
-package com.lp.io;
+package main.java.com.daqifi.io;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Scanner;
 import java.util.logging.Logger;
 
-import com.lp.io.messages.Message;
+import main.java.com.daqifi.io.messages.Message;
 
 /**
  * @author marc

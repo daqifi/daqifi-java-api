@@ -1,5 +1,5 @@
 // Copyright 2013 Marc Bernardini.
-package com.lp.io.messages;
+package main.java.com.daqifi.io.messages;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

@@ -1,9 +1,9 @@
 // Copyright 2013 Marc Bernardini.
 package com.daqifi.common.devices;
 
-import com.lp.io.MessageConsumer;
-import com.lp.io.messages.MeasurementMessage;
-import com.lp.io.messages.SimpleProtobufMessage;
+import main.java.com.daqifi.io.MessageConsumer;
+import main.java.com.daqifi.io.messages.MeasurementMessage;
+import main.java.com.daqifi.io.messages.SimpleProtobufMessage;
 import com.daqifi.common.components.DataBuffer;
 import com.daqifi.common.devices.channels.AnalogInputChannel;
 import com.daqifi.common.devices.channels.AnalogMathInputChannel;

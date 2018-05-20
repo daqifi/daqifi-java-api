@@ -1,10 +1,10 @@
 // Copyright 2013 Marc Bernardini.
 package com.daqifi.common.devices;
 
-import com.lp.io.DeviceMessageInterpreter;
-import com.lp.io.MessageConsumer;
-import com.lp.io.SocketConnector;
-import com.lp.io.messages.Message;
+import main.java.com.daqifi.io.DeviceMessageInterpreter;
+import main.java.com.daqifi.io.MessageConsumer;
+import main.java.com.daqifi.io.SocketConnector;
+import main.java.com.daqifi.io.messages.Message;
 import com.daqifi.common.components.DataBuffer;
 import com.daqifi.common.devices.channels.AnalogInputChannel;
 import com.daqifi.common.devices.channels.AnalogOutputChannel;

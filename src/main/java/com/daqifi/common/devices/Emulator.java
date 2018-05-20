@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
 
-import com.lp.io.Server;
-import com.lp.io.UdpResponderThread;
+import main.java.com.daqifi.io.Server;
+import main.java.com.daqifi.io.UdpResponderThread;
 
 /**
  * Emulator class provides a main method to run the device emulator. The main

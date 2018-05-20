@@ -2,8 +2,8 @@ package com.daqifi.common.components;
 
 import java.util.Set;
 
-import com.lp.io.MessageConsumer;
-import com.lp.io.messages.DeviceBroadcastMessage;
+import main.java.com.daqifi.io.MessageConsumer;
+import main.java.com.daqifi.io.messages.DeviceBroadcastMessage;
 import com.daqifi.common.devices.DeviceFactory;
 import com.daqifi.common.devices.DeviceInterface;
 

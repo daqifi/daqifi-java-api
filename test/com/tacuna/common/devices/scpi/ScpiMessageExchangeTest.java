@@ -6,16 +6,17 @@ import static org.junit.Assert.fail;
 
 import java.io.IOException;
 
+import main.java.com.daqifi.io.messages.Message;
 import mockit.Injectable;
 import mockit.NonStrictExpectations;
 import mockit.Verifications;
 
 import org.junit.Test;
 
-import com.lp.io.DeviceMessageInterpreter;
-import com.lp.io.MessageConsumer;
-import com.lp.io.SocketConnector;
-import com.lp.io.messages.SimpleDeviceMessage;
+import main.java.com.daqifi.io.DeviceMessageInterpreter;
+import main.java.com.daqifi.io.MessageConsumer;
+import main.java.com.daqifi.io.SocketConnector;
+import main.java.com.daqifi.io.messages.SimpleDeviceMessage;
 import com.tacuna.common.devices.channels.ChannelInterface;
 
 public class ScpiMessageExchangeTest {
@@ -96,7 +97,7 @@ public class ScpiMessageExchangeTest {
 	// Verify:
 	new Verifications() {
 	    {
-		com.lp.io.messages.Message message;
+		Message message;
 		consumer.onMessage(message = withCapture());
 		assertEquals(channel,
 			((SimpleDeviceMessage) message).getChannel());
