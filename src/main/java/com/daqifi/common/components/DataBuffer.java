@@ -14,6 +14,10 @@ public class DataBuffer {
   public static DataBuffer UI_BUFFER = new DataBuffer("UI Buffer", 1000, true);
   public static DataBuffer DATABASE_WRITE_BUFFER = new DataBuffer("Database Buffer", 2000, false);
 
+  /**
+   * Returns the name of the buffer
+   * @return
+   */
   public String getBufferName() {
     return bufferName;
   }
@@ -24,7 +28,7 @@ public class DataBuffer {
   private boolean allowDataLoss;
 
   /**
-   * Data buffer constructor. Sets the buffer name, maximum size, and wither the buffer allows data loss.
+   * Data buffer constructor. Sets the buffer name, maximum size, and whether the buffer allows data loss.
    *
    * @param name
    * @param bufferSize
@@ -33,8 +37,9 @@ public class DataBuffer {
   public DataBuffer(String name, int bufferSize, boolean allowDataLoss) {
     this.bufferName = name;
     this.capacity = bufferSize;
-    this.queue = new ArrayBlockingQueue<Message>(bufferSize);
+    this.queue = new ArrayBlockingQueue<>(bufferSize);
     this.allowDataLoss = allowDataLoss;
+    queue.
   }
 
   /**

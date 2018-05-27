@@ -6,6 +6,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -33,7 +34,8 @@ public class UdpBroadcast extends DataInterpreter implements Runnable {
    */
   private final InetAddress broadcastAddr;
   private final int port;
-  boolean running = true;
+  private final AtomicBoolean running = new AtomicBoolean(false);
+
 
   /**
    * The lastMessage is the last message sent out. Its primary purpose is to
@@ -88,8 +90,8 @@ public class UdpBroadcast extends DataInterpreter implements Runnable {
   @Override
   public void run() {
     log.info("Awaiting response.");
-    running = true;
-    while (running) {
+    running.set(true);
+    while (running.get()) {
       receiveData();
     }
   }
@@ -111,8 +113,6 @@ public class UdpBroadcast extends DataInterpreter implements Runnable {
         return;
       }
       notifyObservers(new DeviceBroadcastMessage(received));
-      log.info(String.format("Received response from [%s:%d]", received
-              .getAddress().toString(), received.getPort()));
     } catch (InvalidProtocolBufferException err) {
       log.log(Level.WARNING, "Invalid DatagramPacket", err);
     } catch (IOException err) {
@@ -124,7 +124,7 @@ public class UdpBroadcast extends DataInterpreter implements Runnable {
    * Stops the receiving thread and closes the Socket connection.
    */
   public void stop() {
-    running = false;
+    running.set(false);
     // Close if not null.
     if (socket != null) {
       socket.close();

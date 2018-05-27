@@ -14,19 +14,19 @@ public interface MessageProducer<T extends Message> {
    *
    * @param o
    */
-  public void registerObserver(MessageConsumer<T> o);
+  void registerObserver(MessageConsumer<T> o);
 
   /**
    * Remove an observer
    *
    * @param o
    */
-  public void removeObserver(MessageConsumer<T> o);
+  void removeObserver(MessageConsumer<T> o);
 
   /**
    * Used by implementations of this class to notify observers.
    *
    * @param message
    */
-  public void notifyObservers(T message);
+  void notifyObservers(T message);
 }
