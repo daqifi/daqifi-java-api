@@ -1,12 +1,8 @@
 package com.daqifi.common.components;
 
-import com.daqifi.common.devices.AD7195W;
-import com.daqifi.common.devices.DeviceCommandSchedule;
 import com.daqifi.common.devices.DeviceFactory;
 import com.daqifi.common.devices.DeviceInterface;
-import com.daqifi.common.devices.channels.ChannelInterface;
 import com.daqifi.io.MessageConsumer;
-import com.daqifi.io.SocketConnector;
 import com.daqifi.io.UdpBroadcast;
 import com.daqifi.io.messages.DeviceBroadcastMessage;
 import com.daqifi.io.messages.Message;
@@ -15,11 +11,8 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -32,11 +25,8 @@ import java.util.logging.Logger;
  *
  * @author marc
  */
-public class ConnectionManager implements PropertyChangeListener {
-    /**
-     * The singleton instance of the ConnectionManagerAndriod
-     */
-    public static ConnectionManager INSTANCE = new ConnectionManager();
+public class ConnectionManager {
+
     private static Logger log = Logger.getLogger(ConnectionManager.class
             .getName());
 
@@ -63,89 +53,6 @@ public class ConnectionManager implements PropertyChangeListener {
      */
     public final Set<DeviceInterface> knownDevices = Collections
             .synchronizedSet(new HashSet<DeviceInterface>());
-
-    public final ArrayList<ChannelInterface> activeChannelsList = new ArrayList<ChannelInterface>();
-
-    public void addChannel(ChannelInterface channel) {
-        if (!activeChannelsList.contains(channel)) {
-            activeChannelsList.add(channel);
-            channel.setActive(true);
-        }
-    }
-
-    public void removeChannel(ChannelInterface channel) {
-        if (activeChannelsList.contains(channel)) {
-            activeChannelsList.remove(channel);
-            channel.setActive(false);
-        } else {
-            log.warning("Channel not found in activeChannelsList");
-        }
-    }
-
-    public Collection<ChannelInterface> getNonActiveChannels() {
-        ArrayList<ChannelInterface> channels = new ArrayList<ChannelInterface>();
-        for (DeviceInterface device : knownDevices) {
-            if (device.isConnected()) {
-                Collection<ChannelInterface> dc = device.getChannels();
-                for (ChannelInterface ch : dc) {
-                    if (!activeChannelsList.contains(ch)) {
-                        channels.add(ch);
-                    }
-                }
-            }
-        }
-
-        return channels;
-    }
-
-    private final HashMap<String, DeviceCommandSchedule> deviceSchedules = new HashMap<String, DeviceCommandSchedule>();
-
-    public DeviceCommandSchedule getScheduleByDeviceName(String device) {
-        return deviceSchedules.get(device);
-    }
-
-    /**
-     * Socket connection factory method.
-     *
-     * @param host
-     * @param port
-     * @return
-     */
-    public SocketConnector createConnection(final String host, int port) {
-        // Attempt connection.
-        try {
-            log.info(String.format("Creating connection to %s:%d", host, port));
-            DeviceInterface lastDevice = new AD7195W();
-            lastDevice.setNetworkAddress(InetSocketAddress.createUnresolved(
-                    host, port));
-            lastDevice.connect();
-            SocketConnector connection = lastDevice.getConnection();
-            connection.addChangeListener(this);
-            DeviceCommandSchedule schedule = new DeviceCommandSchedule(
-                    lastDevice);
-            deviceSchedules.put(lastDevice.getDeviceName(), schedule);
-            return connection;
-        } catch (final Exception err) {
-            log.warning("Unable to create connection. Exception:"
-                    + err.toString());
-        }
-        return null;
-    }
-
-    /**
-     * Connects the device that is passed in and configures it.
-     *
-     * @param device
-     * @return
-     */
-    public SocketConnector createConnection(DeviceInterface device) {
-        device.connect();
-        SocketConnector connection = device.getConnection();
-        connection.addChangeListener(this);
-        DeviceCommandSchedule schedule = new DeviceCommandSchedule(device);
-        deviceSchedules.put(device.getDeviceName(), schedule);
-        return connection;
-    }
 
     /**
      * Returns the UdpBroadcaster. This method will create the broadcaster the
@@ -210,7 +117,6 @@ public class ConnectionManager implements PropertyChangeListener {
                 device.disconnect();
             }
         }
-        activeChannelsList.clear();
     }
 
     /**
@@ -230,11 +136,6 @@ public class ConnectionManager implements PropertyChangeListener {
             super(broadcaster);
             start();
         }
-    }
-
-    @Override
-    public void propertyChange(PropertyChangeEvent event) {
-        // notifyListeners("connection", null, connection);
     }
 
     private final ArrayList<PropertyChangeListener> listeners = new ArrayList<PropertyChangeListener>();

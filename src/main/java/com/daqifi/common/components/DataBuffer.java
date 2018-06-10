@@ -39,7 +39,6 @@ public class DataBuffer {
     this.capacity = bufferSize;
     this.queue = new ArrayBlockingQueue<>(bufferSize);
     this.allowDataLoss = allowDataLoss;
-    queue.
   }
 
   /**
