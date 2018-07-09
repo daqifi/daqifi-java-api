@@ -1,7 +1,7 @@
 package com.daqifi.io.generators;
 
 /**
- * Created by Marc on 1/9/15.
+ * Generates a Sine wave signal
  */
 public class SineGenerator implements Generator {
 

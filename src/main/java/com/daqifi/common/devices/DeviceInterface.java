@@ -79,7 +79,7 @@ public interface DeviceInterface extends MessageProducer {
 
     /**
      * Returns the device channels.
-     * <p/>
+     * <p></p>
      *
      * @return
      */

@@ -1,7 +1,7 @@
 package com.daqifi.common.components;
 
 /**
- * Created by Marc on 1/26/16.
+ * ExponentialMovingAverage
  */
 public class ExponentialMovingAverage {
 
@@ -12,13 +12,16 @@ public class ExponentialMovingAverage {
     this.alpha = alpha;
   }
 
+  /**
+   * Returns the calculated average
+   * @return
+   */
   public float getAverage() {
     return s;
   }
 
   /**
-   * Adds a value to the moving average and removes the oldest sample if past
-   * the sample size.
+   * Adds a value to the moving average
    *
    * @param value
    */

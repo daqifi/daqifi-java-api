@@ -4,7 +4,7 @@ import com.daqifi.common.devices.DeviceInterface;
 import com.daqifi.common.devices.scpi.Command;
 
 /**
- * Created by marc on 10/25/16.
+ *
  */
 public class AnalogOutputChannel extends Channel {
 

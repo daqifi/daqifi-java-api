@@ -1,5 +1,12 @@
 package com.daqifi.io;
 
+import com.daqifi.common.components.DtoAConverter;
+import com.daqifi.common.devices.Nyquist1;
+import com.daqifi.common.messages.ProtoMessageV2;
+import com.daqifi.io.generators.Generator;
+import com.daqifi.io.generators.SineGenerator;
+import com.google.protobuf.ByteString;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -17,375 +24,338 @@ import java.util.Enumeration;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
-import com.google.protobuf.ByteString;
-import com.daqifi.io.generators.Generator;
-import com.daqifi.io.generators.SineGenerator;
-import com.daqifi.common.components.DtoAConverter;
-import com.daqifi.common.devices.AD7195W;
-import com.daqifi.common.messages.ProtoMessage.WiFiDAQOutMessage;
-import com.daqifi.common.messages.ProtoMessage.WiFiDAQOutMessage.Builder;
-import com.daqifi.common.messages.ProtoMessageV2;
+import static com.daqifi.common.devices.Nyquist1.ANALOG_RES;
+
 
 /**
- * @author marc
+ * Emulator Server.
  */
 public class Server extends Thread {
-  private static Logger log = Logger.getLogger(Server.class.getName());
-  private int port;
-  private DataInterpreter clientConnectionInterpreter;
-  static int SAMPLES_PER_SEC = 100;
+    private static Logger log = Logger.getLogger(Server.class.getName());
+    private int port;
+    private DataInterpreter clientConnectionInterpreter;
+    static int SAMPLES_PER_SEC = 100;
 
-  private DataThread dt;
+    private DataThread dt;
 
-  public Server(int port, DataInterpreter dataInterpreter) {
-    this.port = port;
-    this.clientConnectionInterpreter = dataInterpreter;
+    public Server(int port, DataInterpreter dataInterpreter) {
+        this.port = port;
+        this.clientConnectionInterpreter = dataInterpreter;
 
-    log.info(String.format("Listening on port %d", port));
-    start();
-  }
-
-  @Override
-  public void run() {
-    try {
-      ServerSocket sserver = new ServerSocket(port);
-      BufferedReader in = null;
-      while (sserver.isBound()) {
-        Socket clientSocket = sserver.accept();
-        log.info("Accepting connection...");
-        // clientSocket.setTcpNoDelay(true);
-        clientSocket.setSendBufferSize(50000);
-
-        in = new BufferedReader(new InputStreamReader(
-                clientSocket.getInputStream()));
-        while (clientSocket.isConnected()) {
-          String command = in.readLine();
-          if (command == null) {
-            log.info("Connection Closed");
-            break;
-          }
-          command = command.toLowerCase();
-          log.info(command);
-          String[] splitString = command.split("[?]");
-          String data;
-          if (command.contains("system:startstreamdata")) {
-            log.info("enabling streaming");
-            log.info(String.format("TCP send buffer size: %d",
-                    clientSocket.getSendBufferSize()));
-            int samplesPerSecond = SAMPLES_PER_SEC;
-            String[] split = command.split("[ ]");
-            if (split.length == 2) {
-              samplesPerSecond = Integer.parseInt(split[1]);
-            }
-            dt = new DataThread(clientSocket.getOutputStream(),
-                    samplesPerSecond);
-
-            data = "Protobuf streaming";
-          } else if (command.contains("system:stopstreamdata")) {
-            dt.running = false;
-            data = "Stop streaming";
-          } else if (command.contains("configure:adc:channel") || command.contains("enable:voltage:dc")) {
-            String[] split = command.split("[ ]");
-            channelMask = Integer.parseInt(split[1]);
-            data = String.format("Set channel mask to %s",
-                    Integer.toBinaryString(channelMask));
-          } else if (command.contains("configure:adc:range")) {
-            String[] split = command.split("[ ]");
-            adcRange = Integer.parseInt(split[1]);
-            data = String.format("Set range to %d", adcRange);
-          } else if (command.contains("system:sysinfopb")) {
-            //WiFiDAQOutMessage msg = getWifiDAQOutMessage();
-            ProtoMessageV2.DaqifiOutMessage msg = getOutMessage();
-            msg.writeDelimitedTo(clientSocket.getOutputStream());
-            data = msg.toString();
-          } else if (splitString.length == 2) {
-            Date time = new Date();
-            String scpicommand = splitString[0];
-            // Check the commands to see what we are measuring:
-            if (scpicommand.equals("measure:ext:adc")) {
-              // Return an analog channel measurement value
-              double channel = Double.parseDouble(splitString[1]
-                      .trim()) + time.getTime() % 1000 / 1000d;
-              data = String.format("+%9.8f\r\n", channel);
-            } else if (scpicommand.equals("input:port:state")) {
-              // Return a digital channel measurement value
-              data = String.format("%d\r\n", time.getTime() % 2);
-            } else {
-              data = "Invalid Command.";
-            }
-            clientSocket.getOutputStream().write(data.getBytes());
-          } else {
-            data = "Unknown command";
-          }
-          log.info("\t" + data);
-        }
-      }
-      sserver.close();
-    } catch (IOException err) {
-      log.warning(err.toString());
-    }
-  }
-
-  /**
-   * Converts an int value to a bytestring with the specified number of bytes.
-   *
-   * @param value         value to convert
-   * @param numberOfBytes must be less than or equal to 4
-   * @return
-   */
-  public static ByteString toByteString(int value, int numberOfBytes) {
-    int bufferSize = 4;
-    byte[] bytes = ByteBuffer.allocate(bufferSize).putInt(value).array();
-    return ByteString.copyFrom(bytes, bufferSize - numberOfBytes, numberOfBytes);
-  }
-
-  public WiFiDAQOutMessage getWifiDAQOutMessage() {
-    Builder builder = WiFiDAQOutMessage.newBuilder();
-    builder.setAdcBytes(2);
-
-    builder.setAnalogPortEnabled(toByteString(getChannelMask(), 1));
-
-    builder.setAnalogPortRange(toByteString(getAdcRange(), 1));
-    builder.setAnalogPortRse(toByteString(1, 1));
-    builder.setBatLevel(1);
-    builder.setBoardTemp(1);
-    builder.setDacBytes(2);
-    builder.setDeviceStatus(1);
-
-    builder.setDigitalPortDir(toByteString(0, 1));
-    builder.setHostName(getHostName());
-    builder.addIpAddr(ByteString.copyFrom(getIpAddress()));
-    builder.addMacAddr(ByteString.copyFrom(getMacAddress()));
-
-    builder.setPwrStatus(1);
-    builder.setSsid("1111");
-    builder.setDevicePn("WFD-AI8-DIO8-AO8");
-    builder.setDevicePort(port);
-
-    return builder.build();
-  }
-
-  public ProtoMessageV2.DaqifiOutMessage getOutMessage(){
-    ProtoMessageV2.DaqifiOutMessage.Builder builder = ProtoMessageV2.DaqifiOutMessage.newBuilder();
-
-    //builder.setAnalogPortEnabled(toByteString(getChannelMask(), 1));
-
-    builder.setAnalogInRes(getAdcRange());
-    //builder.setAnalogInP(toByteString(1, 1));
-    builder.setBattStatus(1);
-    builder.setTempStatus(1);
-    //builder.setDacBytes(2);
-    builder.setDeviceStatus(1);
-
-    builder.setDigitalPortDir(toByteString(0, 1));
-    builder.setHostName(getHostName());
-    builder.setIpAddr(ByteString.copyFrom(getIpAddress()));
-    builder.setMacAddr(ByteString.copyFrom(getMacAddress()));
-
-    builder.setPwrStatus(1);
-    builder.setSsid("1111");
-    builder.setDevicePn("Nq1");
-    builder.setDevicePort(port);
-
-    builder.setAnalogInRes(4096);
-    builder.setAnalogInResPriv(4096);
-
-    builder.setTimestampFreq(50000000);
-
-    return builder.build();
-  }
-
-  int adcRange = 1;
-
-  protected int getAdcRange() {
-    return adcRange;
-  }
-
-  int channelMask = 0;
-
-  protected int getChannelMask() {
-    return channelMask;
-  }
-
-  byte[] macAddr = initMacAddr();
-
-  protected byte[] initMacAddr() {
-    try {
-      Enumeration<NetworkInterface> networks = NetworkInterface
-              .getNetworkInterfaces();
-      while (networks.hasMoreElements()) {
-        NetworkInterface network = networks.nextElement();
-        byte[] mac = network.getHardwareAddress();
-        if (mac != null) {
-          return mac;
-        }
-      }
-    } catch (SocketException e) {
-      e.printStackTrace();
-    }
-
-    byte[] mac = new byte[6];
-    SecureRandom random = new SecureRandom();
-    random.nextBytes(mac);
-    return mac;
-  }
-
-  private InetAddress ip = initIp();
-
-  protected InetAddress initIp() {
-    try {
-      return InetAddress.getLocalHost();
-    } catch (UnknownHostException err) {
-      err.printStackTrace();
-    }
-    return null;
-  }
-
-  protected String getHostName() {
-    if (ip != null) {
-      return ip.getHostName();
-    }
-    return "Unknown";
-  }
-
-  protected byte[] getIpAddress() {
-    if (ip != null) {
-      return ip.getAddress();
-    }
-    byte[] unknownIp = new byte[4];
-    for (int i = 0; i < unknownIp.length; i++) {
-      unknownIp[i] = (byte) 0;
-    }
-    return unknownIp;
-  }
-
-  protected byte[] getMacAddress() {
-    return macAddr;
-  }
-
-  public class DataThread extends Thread {
-    private final OutputStream out;
-    private boolean running;
-    private final int saplesPerSecond;
-    private int dt;
-    private final double TOL = 0.9;
-    private final Generator dataGen;
-
-    public DataThread(OutputStream os, int samplesPerSecond) {
-      this.out = os;
-      this.running = true;
-      this.saplesPerSecond = samplesPerSecond;
-      this.dt = convertSampleRateToDt(samplesPerSecond);
-
-      float max = (getAdcRange() == 1) ? 10.0f : 5.0f;
-      this.dataGen = new SineGenerator(max * 0.99f, (float) (2 * Math.PI / 100_000_000f), 0f);
-      //this.dataGen = new Limiter(new CompositeGenerator(
-      //        new SineGenerator(max*0.99f, (float) (2 * Math.PI / 10f), 0f),
-      //        new SineGenerator(1f, (float) (2 * Math.PI / 1000f), 0f)), -1*max, max);
-      start();
-    }
-
-    private int convertSampleRateToDt(int sps) {
-      return (int) Math.floor((1.0 / sps) * 1000 * TOL);
+        log.info(String.format("Listening on port %d", port));
+        start();
     }
 
     @Override
     public void run() {
-      double dtPerSample = 1d/saplesPerSecond;
-      long waitInMicros = Math.round(Math.floor(dtPerSample * 1_000_000));
-      try {
-        int sequence = 0;
-        long lastTimeLogged = System.currentTimeMillis();
-        int startTimeSeq = 0;
-        while (running) {
+        try {
+            ServerSocket sserver = new ServerSocket(port);
+            BufferedReader in = null;
+            while (sserver.isBound()) {
+                Socket clientSocket = sserver.accept();
+                log.info("Accepting connection...");
+                // clientSocket.setTcpNoDelay(true);
+                clientSocket.setSendBufferSize(50000);
 
-          if (sequence - startTimeSeq == saplesPerSecond) {
-            long now = System.currentTimeMillis();
-            long delta = now - lastTimeLogged;
-            if (delta > 1000) {
-              // When the lag goes above 10%, display an error
-              // message with the actual data rate
-              if (delta > 1100) {
-                log.severe(String
-                        .format("Unable to stream at requested rate. Actual data rate: %f Hz",
-                                1000f * SAMPLES_PER_SEC / delta));
-              }
-              lastTimeLogged = now;
-              startTimeSeq = sequence;
+                in = new BufferedReader(new InputStreamReader(
+                        clientSocket.getInputStream()));
+                while (clientSocket.isConnected()) {
+                    String command = in.readLine();
+                    if (command == null) {
+                        log.info("Connection Closed");
+                        break;
+                    }
+                    command = command.toLowerCase();
+                    log.info(command);
+                    String[] splitString = command.split("[?]");
+                    String data;
+                    if (command.contains("system:startstreamdata")) {
+                        log.info("enabling streaming");
+                        log.info(String.format("TCP send buffer size: %d",
+                                clientSocket.getSendBufferSize()));
+                        int samplesPerSecond = SAMPLES_PER_SEC;
+                        String[] split = command.split("[ ]");
+                        if (split.length == 2) {
+                            samplesPerSecond = Integer.parseInt(split[1]);
+                        }
+                        dt = new DataThread(clientSocket.getOutputStream(),
+                                samplesPerSecond);
 
-              if (waitInMicros > 0) {
-                  waitInMicros = waitInMicros - 10;
-              }
-            } else {
-              // We've already sent the number of samples for the
-              // current second. If we are sending too fast, slow down the wait time
-                if(delta < 900) {
-                    waitInMicros = waitInMicros + 10;
+                        data = "Protobuf streaming";
+                    } else if (command.contains("system:stopstreamdata")) {
+                        dt.running = false;
+                        data = "Stop streaming";
+                    } else if (command.contains("configure:adc:channel") || command.contains("enable:voltage:dc")) {
+                        String[] split = command.split("[ ]");
+                        channelMask = Integer.parseInt(split[1]);
+                        data = String.format("Set channel mask to %s",
+                                Integer.toBinaryString(channelMask));
+                    } else if (command.contains("configure:adc:range")) {
+                        String[] split = command.split("[ ]");
+                        adcRange = Integer.parseInt(split[1]);
+                        data = String.format("Set range to %d", adcRange);
+                    } else if (command.contains("system:sysinfopb")) {
+                        //WiFiDAQOutMessage msg = getWifiDAQOutMessage();
+                        ProtoMessageV2.DaqifiOutMessage msg = getOutMessage();
+                        msg.writeDelimitedTo(clientSocket.getOutputStream());
+                        data = msg.toString();
+                    } else if (splitString.length == 2) {
+                        Date time = new Date();
+                        String scpicommand = splitString[0];
+                        // Check the commands to see what we are measuring:
+                        if (scpicommand.equals("measure:ext:adc")) {
+                            // Return an analog channel measurement value
+                            double channel = Double.parseDouble(splitString[1]
+                                    .trim()) + time.getTime() % 1000 / 1000d;
+                            data = String.format("+%9.8f\r\n", channel);
+                        } else if (scpicommand.equals("input:port:state")) {
+                            // Return a digital channel measurement value
+                            data = String.format("%d\r\n", time.getTime() % 2);
+                        } else {
+                            data = "Invalid Command.";
+                        }
+                        clientSocket.getOutputStream().write(data.getBytes());
+                    } else {
+                        data = "Unknown command";
+                    }
+                    log.info("\t" + data);
                 }
             }
-          }
-
-          sequence += 1;
-          buildDataMessageV2(System.nanoTime() / 1000);
-          waitFor(waitInMicros);
+            sserver.close();
+        } catch (IOException err) {
+            log.warning(err.toString());
         }
-      } catch (IOException err) {
-        log.warning("Exception caught. Stopping data generation. Error: "
-                + err.toString());
-      } catch (InterruptedException err) {
-        log.warning("Exception caught. Stopping data generation. Error: "
-                + err.toString());
-      }
     }
 
-    private void waitFor(long micros) throws InterruptedException{
-        if(micros <= 0) return;
-
-      if(micros > 10_000){
-        Thread.sleep(TimeUnit.MILLISECONDS.convert(micros, TimeUnit.MICROSECONDS));
-      } else {
-        long waitUntil = System.nanoTime() + (micros * 1_000);
-        while (waitUntil > System.nanoTime()) {
-          ;
-        }
-      }
+    /**
+     * Converts an int value to a bytestring with the specified number of bytes.
+     *
+     * @param value         value to convert
+     * @param numberOfBytes must be less than or equal to 4
+     * @return
+     */
+    public static ByteString toByteString(int value, int numberOfBytes) {
+        int bufferSize = 4;
+        byte[] bytes = ByteBuffer.allocate(bufferSize).putInt(value).array();
+        return ByteString.copyFrom(bytes, bufferSize - numberOfBytes, numberOfBytes);
     }
 
-    private void buildDataMessageV1(int sequence) throws IOException {
-      Builder builder = WiFiDAQOutMessage.newBuilder()
-              .setMsgSeq(sequence);
+    public ProtoMessageV2.DaqifiOutMessage getOutMessage() {
+        ProtoMessageV2.DaqifiOutMessage.Builder builder = ProtoMessageV2.DaqifiOutMessage.newBuilder();
 
-      for (int jj = 0; jj < 8; jj++) {
-        int bit = 1 << jj;
-        if ((bit & channelMask) == bit) {
-          builder.addAnalogInDataI(DtoAConverter.convertVoltageToInt(
-                  dataGen.getValue(sequence * (jj + 1)), AD7195W.ADC_RESOLUTION, getAdcRange()));
-        }
-      }
-      byte[] di = new byte[1];
-      di[0] = (sequence % 2 == 0) ? (byte) -1 : 0;
+        //builder.setAnalogPortEnabled(toByteString(getChannelMask(), 1));
 
-      builder.setDigitalData(ByteString.copyFrom(di));
-      builder.build().writeDelimitedTo(out);
+        builder.setAnalogInPortNum(Nyquist1.ANALOG_IN_CHANNELS);
+        builder.setAnalogInPortNumPriv(8);
+        builder.setDeviceFwRev("1.0.2");
+        builder.setDeviceHwRev("1.0");
+        builder.setDeviceSn(4788544735461581972l);
+        builder.setDigitalPortNum(0);
+        //builder.setAnalogInP(toByteString(1, 1));
+        builder.setBattStatus(1);
+        builder.setTempStatus(1);
+        //builder.setDacBytes(2);
+        builder.setDeviceStatus(1);
+
+        builder.setDigitalPortDir(toByteString(0, 1));
+        builder.setHostName(getHostName());
+        builder.setIpAddr(ByteString.copyFrom(getIpAddress()));
+        builder.setMacAddr(ByteString.copyFrom(getMacAddress()));
+
+        builder.setPwrStatus(1);
+        builder.setSsid("1111");
+        builder.setDevicePn("Nq1");
+        builder.setDevicePort(port);
+
+        builder.setAnalogInRes(ANALOG_RES);
+        builder.setAnalogInResPriv(ANALOG_RES);
+
+        builder.setTimestampFreq(50000000);
+
+        return builder.build();
     }
 
-      private void buildDataMessageV2(long time) throws IOException {
-          ProtoMessageV2.DaqifiOutMessage.Builder builder = ProtoMessageV2.DaqifiOutMessage.newBuilder();
+    float adcRange = 5.0f;
 
-          builder.setMsgTimeStamp((int)time);
-          builder.setTimestampFreq((int)TimeUnit.MICROSECONDS.convert(1, TimeUnit.SECONDS));
-          for (int jj = 0; jj < 8; jj++) {
-              int bit = 1 << jj;
-              if ((bit & channelMask) == bit) {
-                  builder.addAnalogInData(DtoAConverter.convertVoltageToInt(
-                          dataGen.getValue(time), AD7195W.ADC_RESOLUTION, getAdcRange()));
-              }
-          }
-          byte[] di = new byte[1];
-          di[0] = (time % 2 == 0) ? (byte) -1 : 0;
+    protected float getAdcRange() {
+        return adcRange;
+    }
 
-          builder.setDigitalData(ByteString.copyFrom(di));
-          builder.build().writeDelimitedTo(out);
-      }
-  }
+    int channelMask = 0;
+
+    protected int getChannelMask() {
+        return channelMask;
+    }
+
+    byte[] macAddr = initMacAddr();
+
+    protected byte[] initMacAddr() {
+        try {
+            Enumeration<NetworkInterface> networks = NetworkInterface
+                    .getNetworkInterfaces();
+            while (networks.hasMoreElements()) {
+                NetworkInterface network = networks.nextElement();
+                byte[] mac = network.getHardwareAddress();
+                if (mac != null) {
+                    return mac;
+                }
+            }
+        } catch (SocketException e) {
+            e.printStackTrace();
+        }
+
+        byte[] mac = new byte[6];
+        SecureRandom random = new SecureRandom();
+        random.nextBytes(mac);
+        return mac;
+    }
+
+    private InetAddress ip = initIp();
+
+    protected InetAddress initIp() {
+        try {
+            return InetAddress.getLocalHost();
+        } catch (UnknownHostException err) {
+            err.printStackTrace();
+        }
+        return null;
+    }
+
+    protected String getHostName() {
+        if (ip != null) {
+            return ip.getHostName();
+        }
+        return "Unknown";
+    }
+
+    protected byte[] getIpAddress() {
+        if (ip != null) {
+            return ip.getAddress();
+        }
+        byte[] unknownIp = new byte[4];
+        for (int i = 0; i < unknownIp.length; i++) {
+            unknownIp[i] = (byte) 0;
+        }
+        return unknownIp;
+    }
+
+    protected byte[] getMacAddress() {
+        return macAddr;
+    }
+
+    public class DataThread extends Thread {
+        private final OutputStream out;
+        private boolean running;
+        private final int saplesPerSecond;
+        private int dt;
+        private final double TOL = 0.9;
+        private final Generator dataGen;
+        private final float SINE_WAVE_PERIOD = 5;
+
+        public DataThread(OutputStream os, int samplesPerSecond) {
+            this.out = os;
+            this.running = true;
+            this.saplesPerSecond = samplesPerSecond;
+            this.dt = convertSampleRateToDt(samplesPerSecond);
+
+            float max = getAdcRange();
+            this.dataGen = new SineGenerator(max * 0.99f / 2, (float) (2 * Math.PI / (1_000_000 * SINE_WAVE_PERIOD)), max / 2);
+            //this.dataGen = new Limiter(new CompositeGenerator(
+            //        new SineGenerator(max*0.99f, (float) (2 * Math.PI / 10f), 0f),
+            //        new SineGenerator(1f, (float) (2 * Math.PI / 1000f), 0f)), -1*max, max);
+            start();
+        }
+
+        private int convertSampleRateToDt(int sps) {
+            return (int) Math.floor((1.0 / sps) * 1000 * TOL);
+        }
+
+        @Override
+        public void run() {
+            double dtPerSample = 1d / saplesPerSecond;
+            long waitInMicros = Math.round(Math.floor(dtPerSample * 1_000_000));
+            try {
+                int sequence = 0;
+                long lastTimeLogged = System.currentTimeMillis();
+                int startTimeSeq = 0;
+                while (running) {
+
+                    if (sequence - startTimeSeq == saplesPerSecond) {
+                        long now = System.currentTimeMillis();
+                        long delta = now - lastTimeLogged;
+                        if (delta > 1000) {
+                            // When the lag goes above 10%, display an error
+                            // message with the actual data rate
+                            if (delta > 1100) {
+                                log.severe(String
+                                        .format("Unable to stream at requested rate. Actual data rate: %f Hz",
+                                                1000f * SAMPLES_PER_SEC / delta));
+                            }
+                            lastTimeLogged = now;
+                            startTimeSeq = sequence;
+
+                            if (waitInMicros > 0) {
+                                waitInMicros = waitInMicros - 10;
+                            }
+                        } else {
+                            // We've already sent the number of samples for the
+                            // current second. If we are sending too fast, slow down the wait time
+                            if (delta < 900) {
+                                waitInMicros = waitInMicros + 10;
+                            }
+                        }
+                    }
+
+                    sequence += 1;
+                    buildDataMessageV2(System.nanoTime() / 1000);
+                    waitFor(waitInMicros);
+
+                    if(sequence % 100 == 0 || saplesPerSecond < 100) {
+                        char[] chars = {'|','/','-','\\'};
+                        System.out.print('\b');
+                        System.out.print( chars[sequence % 4] );
+                    }
+                }
+            } catch (IOException err) {
+                log.warning("Exception caught. Stopping data generation. Error: "
+                        + err.toString());
+            } catch (InterruptedException err) {
+                log.warning("Exception caught. Stopping data generation. Error: "
+                        + err.toString());
+            }
+        }
+
+        private void waitFor(long micros) throws InterruptedException {
+            if (micros <= 0) return;
+
+            if (micros > 10_000) {
+                Thread.sleep(TimeUnit.MILLISECONDS.convert(micros, TimeUnit.MICROSECONDS));
+            } else {
+                long waitUntil = System.nanoTime() + (micros * 1_000);
+                while (waitUntil > System.nanoTime()) {
+                    ;
+                }
+            }
+        }
+
+        private void buildDataMessageV2(long time) throws IOException {
+            ProtoMessageV2.DaqifiOutMessage.Builder builder = ProtoMessageV2.DaqifiOutMessage.newBuilder();
+
+            builder.setMsgTimeStamp((int) time);
+            builder.setTimestampFreq((int) TimeUnit.MICROSECONDS.convert(1, TimeUnit.SECONDS));
+            for (int jj = 0; jj < Nyquist1.ANALOG_IN_CHANNELS; jj++) {
+                int bit = 1 << jj;
+                if ((bit & channelMask) == bit) {
+                    long t = time + Math.round(jj * (SINE_WAVE_PERIOD / (float) Nyquist1.ANALOG_IN_CHANNELS) * 1_000_000);
+                    float value = dataGen.getValue(t);
+                    builder.addAnalogInData(DtoAConverter.convertVoltageToInt(value, ANALOG_RES, getAdcRange()));
+                }
+            }
+            byte[] di = new byte[1];
+            di[0] = (time % 2 == 0) ? (byte) -1 : 0;
+
+            builder.setDigitalData(ByteString.copyFrom(di));
+            builder.build().writeDelimitedTo(out);
+        }
+    }
 }

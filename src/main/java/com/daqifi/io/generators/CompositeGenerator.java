@@ -4,9 +4,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
- * Created by Marc on 1/9/15.
+ * @hide
+ * Multiples several Generators together to create a composite signal
  */
-public class CompositeGenerator implements Generator {
+class CompositeGenerator implements Generator {
 
   private ArrayList<Generator> generators;
 

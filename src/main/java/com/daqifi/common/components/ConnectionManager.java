@@ -19,7 +19,7 @@ import java.util.Set;
 import java.util.logging.Logger;
 
 /**
- * Singleton connection manager class. Manages connections and their data
+ * Connection manager class. Manages connections and their data
  * interpreters. A singleton instance is used so that connections persist
  * between views. This Singleton uses the singleton enum pattern.
  *
@@ -39,8 +39,7 @@ public class ConnectionManager {
      */
     public static final int DEVICE_LISTENING_PORT = 30303;
     /**
-     * UDP response port. Note that for now this must be the same as the
-     * listening port due to lastDevice limitations.
+     * UDP response port.
      */
     public static final int RESPONSE_PORT = 30303;
 
@@ -49,9 +48,14 @@ public class ConnectionManager {
     private UdpBroadcast broadcaster;
 
     /**
-     * A set that contains all of the known devices.
+     * Returns the set of known devices.
      */
-    public final Set<DeviceInterface> knownDevices = Collections
+    public Set<DeviceInterface> getKnownDevices() {
+        return knownDevices;
+    }
+
+
+    private final Set<DeviceInterface> knownDevices = Collections
             .synchronizedSet(new HashSet<DeviceInterface>());
 
     /**
@@ -86,7 +90,9 @@ public class ConnectionManager {
 
     /**
      * Returns the broadcast address used on the current network. If this has
-     * not been set, the default address of 255.255.255.255
+     * not been set, the default address of 255.255.255.255. The default broadcast
+     * address will typically work for simple networks and on home WiFi networks. However,
+     * some networks require broadcasting using the networks local broadcast address (e.g. 192.168.1.255)
      *
      * @return InetAdress for broadcasts
      * @throws IOException
@@ -108,8 +114,7 @@ public class ConnectionManager {
     }
 
     /**
-     * Closes the connections. Right now there is only one connection but that
-     * may change.
+     * Closes the connections that were made using this instance of the ConnectionManager.
      */
     public void closeAll() {
         for (DeviceInterface device : knownDevices) {
@@ -120,10 +125,7 @@ public class ConnectionManager {
     }
 
     /**
-     * In order to make the UDP broad cast listen in the background we have to
-     * run it in its own thread. Originally I had set this up to just be an
-     * AsynchTask but that doesn't work for blocking calls (like receive) on
-     * Android 3.+ due to the API running all asynch tasks on a single thread.
+     * Thread used for for listening for UDP Broadcast responses.
      */
     protected class UdpListenThread extends Thread {
         /**

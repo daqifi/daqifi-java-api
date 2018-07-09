@@ -45,23 +45,11 @@ public class SimpleProtobufMessage extends Message {
     protoMessage = message;
   }
 
-  /**
-   * Converts a device sample to a voltage value
-   *
-   * @param sampleValue
-   * @return
-   */
-  public double convertSampleToVoltage(int sampleValue) {
-    double extAdcRange = 1.0;
-    double extAdcResolution = 131072.0;
-
-    return ((sampleValue * ((extAdcRange * 10.0) + 10.0)) / (extAdcResolution));
-  }
 
   /**
    * Returns the timestamp stamp sent from the device
    *
-   * @Return deviceTimestamp ticks for the start of the device.
+   * @return deviceTimestamp ticks for the start of the device.
    */
   public long getDeviceTimestamp() {
     return protoMessage.getMsgTimeStamp();

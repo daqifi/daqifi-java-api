@@ -1,7 +1,7 @@
 package com.daqifi.common.components.datascaling;
 
 /**
- * Created by marc on 3/29/16.
+ * Applies a quadratic scale to the data.
  */
 public class QuadraticScale implements DataScale {
     private double a;

@@ -60,8 +60,6 @@ public class SimpleDeviceMessage extends Message {
 
   /**
    * Returns the channelIndex associated with this message.
-   *
-   * @return channelIndex
    */
   public void setChannel(final ChannelInterface channel) {
     this.channel = channel;
@@ -93,7 +91,7 @@ public class SimpleDeviceMessage extends Message {
   /**
    * Returns the timestamp stamp sent from the device
    *
-   * @Return deviceTimestamp ticks for the start of the device.
+   * @return deviceTimestamp ticks for the start of the device.
    */
   public long getDeviceTimestamp() {
     return deviceTimestamp;

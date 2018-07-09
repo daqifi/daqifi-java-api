@@ -7,10 +7,16 @@ import java.util.Collection;
 import java.util.Set;
 
 /**
- * Created by Marc on 1/10/15.
+ * Abstract class that implement several common methods of a ChannelInterface
  */
 public abstract class Channel implements ChannelInterface {
 
+    /**
+     * Filters a collection of Channels for a given channel Type
+     * @param target
+     * @param type
+     * @return
+     */
     public static Collection<ChannelInterface> filter(Collection<ChannelInterface> target, Type type) {
         Collection<ChannelInterface> result = new ArrayList<ChannelInterface>();
         for (ChannelInterface element : target) {
@@ -21,6 +27,11 @@ public abstract class Channel implements ChannelInterface {
         return result;
     }
 
+    /**
+     * Filters a collection of Channels for a active channels
+     * @param target
+     * @return
+     */
     public static Collection<ChannelInterface> filterActive(Collection<ChannelInterface> target) {
         Collection<ChannelInterface> result = new ArrayList<ChannelInterface>();
         for (ChannelInterface element : target) {
@@ -31,6 +42,12 @@ public abstract class Channel implements ChannelInterface {
         return result;
     }
 
+    /**
+     * Filters a collection of Channels for a channel with a matching name
+     * @param target
+     * @param names
+     * @return
+     */
     public static Collection<ChannelInterface> filterNames(Collection<ChannelInterface> target, Set<String> names) {
         Collection<ChannelInterface> result = new ArrayList<ChannelInterface>();
         for (ChannelInterface element : target) {
@@ -41,6 +58,12 @@ public abstract class Channel implements ChannelInterface {
         return result;
     }
 
+    /**
+     * Filters a collection of Channels for a given channel index
+     * @param target
+     * @param index
+     * @return
+     */
     public static Collection<ChannelInterface> filterChannelIndex(Collection<ChannelInterface> target, int index) {
         Collection<ChannelInterface> result = new ArrayList<ChannelInterface>();
         for (ChannelInterface element : target) {
@@ -137,101 +160,5 @@ public abstract class Channel implements ChannelInterface {
     @Override
     public void setActive(boolean value) {
         this.active = value;
-    }
-
-    /**
-     * Channel decorator. The intent of this class is to be the base for any classes
-     * that wish to decorate the channelIndex interface. See the Gamma, et al.
-     * Design Patterns for more on the decorator pattern.
-     *
-     * @author Marc
-     */
-    public static class ChannelDecorator implements ChannelInterface {
-
-        private final ChannelInterface channel;
-
-        /**
-         * @param channel
-         */
-        public ChannelDecorator(ChannelInterface channel) {
-            super();
-            this.channel = channel;
-        }
-
-        @Override
-        public Type getType() {
-            return channel.getType();
-        }
-
-        @Override
-        public String getName() {
-            return channel.getName();
-        }
-
-        @Override
-        public void setName(String name) {
-
-        }
-
-        @Override
-        public void setDevice(DeviceInterface device) {
-            channel.setDevice(device);
-        }
-
-        @Override
-        public DeviceInterface getDevice() {
-            return channel.getDevice();
-        }
-
-        @Override
-        public int getNumberOfSamples() {
-            return channel.getNumberOfSamples();
-        }
-
-        @Override
-        public String getUnit() {
-            return channel.getUnit();
-        }
-
-        @Override
-        public void setUnit(String name) {
-
-        }
-
-        @Override
-        public int getDeviceIndex() {
-            return channel.getDeviceIndex();
-        }
-
-        @Override
-        public boolean isActive() {
-            return this.channel.isActive();
-        }
-
-        @Override
-        public void setActive(boolean value) {
-            this.channel.setActive(value);
-        }
-
-        @Override
-        public int getDisplayColor() {
-            return channel.getDisplayColor();
-        }
-
-        @Override
-        public void setDisplayColor(int color) {
-            channel.setDisplayColor(color);
-        }
-
-        @Override
-        public int getPlotNumber() {
-            return channel.getPlotNumber();
-        }
-
-        @Override
-        public void setPlotNumber(int color) {
-            channel.setPlotNumber(color);
-        }
-
     }
 }

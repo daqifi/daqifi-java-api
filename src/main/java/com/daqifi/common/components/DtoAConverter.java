@@ -35,8 +35,8 @@ public class DtoAConverter {
     return convertVoltageToInt(value, resolution, 1);
   }
 
-  public static int convertVoltageToInt(double value, double resolution, int extAdcRange) {
+  public static int convertVoltageToInt(double value, double resolution, double extAdcRange) {
     return (int) Math.round(value * resolution
-            / ((extAdcRange * 10.0) + 10.0));
+            / extAdcRange);
   }
 }

@@ -14,7 +14,6 @@ import com.daqifi.common.messages.ProtoMessageV2;
  * Message type for the device broadcast messages. Wraps the UDP packet and
  * parses out the important data from packet.
  *
- * @author marc
  */
 public class DeviceBroadcastMessage extends Message {
   /**

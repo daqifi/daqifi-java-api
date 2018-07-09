@@ -1,7 +1,7 @@
 package com.daqifi.common.devices.channels;
 
 /**
- * Created by marc on 4/10/17.
+ *
  */
 public class AnalogMathInputChannel extends AnalogInputChannel {
     public enum Functions{

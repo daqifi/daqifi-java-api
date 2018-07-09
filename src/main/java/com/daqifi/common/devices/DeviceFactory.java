@@ -80,6 +80,7 @@ public class DeviceFactory {
     }
 
     public static DeviceInterface setDeviceStatus(ProtoMessageV2.DaqifiOutMessage sysinfo, DeviceInterface device){
+        System.out.println(sysinfo);
         if(sysinfo == null) return device;
         if (sysinfo.hasPwrStatus()) {
             device.setPowerStatus(sysinfo.getPwrStatus() == 1 ? DeviceInterface.PowerStatus.USB : DeviceInterface.PowerStatus.BATTERY);

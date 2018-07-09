@@ -11,7 +11,7 @@ import com.daqifi.io.UdpResponderThread;
 
 /**
  * Emulator class provides a main method to run the device emulator. The main
- * method takes 0 or more arguments. Each argument is interpretted as a port
+ * method takes 0 or more arguments. Each argument is interpreted as a port
  * number to listen on.
  *
  * @author Marc

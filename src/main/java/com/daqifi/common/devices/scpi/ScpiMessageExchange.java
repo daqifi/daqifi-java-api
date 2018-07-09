@@ -42,9 +42,8 @@ public class ScpiMessageExchange extends DataInterpreter implements
   /**
    * Sends the command to the underlying connection and adds the command to
    * the sent queue.
-   * <p/>
    * This call is synchronized because storing the command in the command
-   * queue and send the command to the socket must be automic.
+   * queue and send the command to the socket must be atomic.
    *
    * @param command
    */

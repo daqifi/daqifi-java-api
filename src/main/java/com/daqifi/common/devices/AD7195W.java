@@ -23,6 +23,9 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Logger;
 
+/**
+ * This class should not be extended directly and will be removed in the future.
+ */
 public class AD7195W extends Device implements DeviceInterface {
 
     private static Logger log = Logger.getLogger(AD7195W.class.getName());

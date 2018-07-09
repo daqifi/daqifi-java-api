@@ -3,6 +3,9 @@ package com.daqifi.common.devices.scpi;
 
 import com.daqifi.common.devices.channels.ChannelInterface;
 
+/**
+ * Wrapper class for sending SCPI commands to Devices
+ */
 public class Command {
 
   private final String command;

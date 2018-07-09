@@ -1,7 +1,7 @@
 package com.daqifi.common.devices.channels;
 
 /**
- * Created by Marc on 1/10/15.
+ *
  */
 public interface InputInterface<T> {
   /**

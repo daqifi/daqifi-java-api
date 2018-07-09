@@ -5,7 +5,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.InetSocketAddress;
 import java.net.SocketException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -25,7 +27,8 @@ public class UdpResponder {
   public UdpResponder(int port, List<Server> devices)
           throws SocketException {
     this.devices = devices;
-    this.socket = new DatagramSocket(port);
+    this.socket = new DatagramSocket(null);
+    this.socket.bind(new InetSocketAddress(port));
   }
 
   public UdpResponder(int port) throws SocketException {
@@ -50,12 +53,13 @@ public class UdpResponder {
    */
   public void waitForBroadcast() {
     try {
-      byte[] buf = new byte[1024];
+      byte[] buf = new byte[2048];
       DatagramPacket received = new DatagramPacket(buf, buf.length);
       socket.receive(received);
+
       log.info(String.format("Received UDP packet from [%s:%d]: %s",
               received.getAddress(), received.getPort(),
-              received.getData()));
+              new String(received.getData())));
 
       for (Server port : devices) {
         sendResponseForPort(received, port);

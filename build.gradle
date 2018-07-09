@@ -1,7 +1,7 @@
 apply plugin: 'java'
 apply plugin: 'com.google.protobuf'
 
-version = '1.0'
+version = '0.1.0'
 sourceCompatibility = 1.7
 targetCompatibility = 1.7
 
@@ -12,7 +12,7 @@ task fatJar(type: Jar) {
         	'Implementation-Version': version,
         	'Main-Class': 'com.daqifi.common.devices.Emulator'
     }
-    baseName = project.name
+    baseName = 'daqifi-' + project.name
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
     with jar
 }
@@ -44,6 +44,11 @@ protobuf {
             }
         }
     }
+}
+
+javadoc {
+    source = sourceSets.main.allJava
+    classpath = configurations.compile
 }
 
 //Project dependencies

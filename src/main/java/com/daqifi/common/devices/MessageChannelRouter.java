@@ -103,6 +103,7 @@ public class MessageChannelRouter implements
     }
 
     /**
+     * Returns the number of message received from the device.
      * @return the numberOfMessages
      */
     public int getNumberOfMessages() {
@@ -110,7 +111,7 @@ public class MessageChannelRouter implements
     }
 
     /**
-     * @return the numberOfMessages
+     * Sets the number of messages
      */
     public void setNumberOfMessages(int value) {
         numberOfMessages = value;

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 /**
- * Created by Marc on 4/20/15.
+ * Message is sent when a Device starts streaming.
  */
 public class StartStreamMessage extends Message {
 

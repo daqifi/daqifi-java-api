@@ -1,10 +1,9 @@
 package com.daqifi.io.messages;
 
 import java.io.UnsupportedEncodingException;
-import java.util.Date;
 
 /**
- * Somewhat generic message class. This class is used to encapsulate the message
+ * Generic message class. This class is used to encapsulate the message
  * data read off of a socket.
  *
  * @author marc
@@ -52,7 +51,7 @@ public class Message {
   /**
    * Returns the message data.
    *
-   * @return
+   * @return Raw data
    */
   public Object getData() {
     return data;
@@ -61,7 +60,7 @@ public class Message {
   /**
    * Returns the timestamp this message was received
    *
-   * @return
+   * @return timestamp
    */
   public long getTimestamp() {
     return timestamp;

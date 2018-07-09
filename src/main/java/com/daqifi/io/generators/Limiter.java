@@ -1,5 +1,8 @@
 package com.daqifi.io.generators;
 
+/**
+ * Limits a generator to be between min and max (inclusive)
+ */
 public class Limiter implements Generator {
 
   private final Generator gen;

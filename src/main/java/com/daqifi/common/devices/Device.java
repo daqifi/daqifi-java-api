@@ -10,10 +10,15 @@ import java.util.List;
 
 /**
  * Abstract Device class. Contains common method implementations used on all
- * devices. Created by Marc on 2/9/15.
+ * devices.
  */
 public abstract class Device implements DeviceInterface {
 
+    /**
+     * Filter streaming devices from a collection of DeviceInterface's
+     * @param target
+     * @return streaming devices
+     */
     public static Collection<DeviceInterface> filterStreaming(Collection<DeviceInterface> target) {
         Collection<DeviceInterface> result = new ArrayList<DeviceInterface>();
         for (DeviceInterface element : target) {
@@ -24,8 +29,10 @@ public abstract class Device implements DeviceInterface {
         return result;
     }
 
-    public static final double ADC_RESOLUTION = 131072.0;
-    public static final int DEFAULT_SAMPLES_PER_SECOND = 100;
+    /**
+     * Constant for the default streaming rate.
+     */
+    public static final int DEFAULT_SAMPLES_PER_SECOND = 10;
 
     private String deviceName;
     private String macAddress;

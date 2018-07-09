@@ -1,7 +1,7 @@
 package com.daqifi.common.devices;
 
 /**
- * Created by marc on 2/20/17.
+ * Nyquist 2 Device class.
  */
 public class Nyquist2 extends AD7195W {
 

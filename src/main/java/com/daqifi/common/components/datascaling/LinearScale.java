@@ -1,7 +1,7 @@
 package com.daqifi.common.components.datascaling;
 
 /**
- * Created by marc on 3/29/16.
+ * Applys a linear scale ( m*x + b ) to the data.
  */
 public class LinearScale implements DataScale {
 

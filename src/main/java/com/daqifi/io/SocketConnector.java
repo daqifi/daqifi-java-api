@@ -32,11 +32,11 @@ public class SocketConnector extends Thread {
   /**
    * Socket States. Here is the ASCII version of the state machine diagram for
    * this class.
-   * <p/>
+   * <p></p>
    * <pre>
-   *                  -[Failed to connect]-> Failed
-   *  0->Connecting->|
-   *                  -[Connected]-> Connected -> [Connection ends] -> Closed
+   *                   -[Failed to connect]-&gt; Failed
+   *  0-&gt; Connecting-&gt;|
+   *                  -[Connected]-&gt; Connected -&gt; [Connection ends] -&gt; Closed
    * </pre>
    *
    * @author marc

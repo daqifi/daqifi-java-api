@@ -1,7 +1,7 @@
 package com.daqifi.io.generators;
 
 /**
- * Created by Marc on 1/9/15.
+ * Interface for a signal generator.
  */
 public interface Generator {
 

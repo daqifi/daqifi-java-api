@@ -2,10 +2,7 @@
 package com.daqifi.io;
 
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.SocketException;
+import java.net.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -17,7 +14,7 @@ import com.daqifi.io.messages.DeviceBroadcastMessage;
  * The UDP Broadcast class handles setting up and sending UDP broadcasts. This
  * class does not automatically know the broadcast address since that might
  * cause portability issues.
- * <p/>
+ *
  * This class extends the data interpreter so that observers may register to be
  * notified of a broadcast message.
  *
@@ -25,6 +22,7 @@ import com.daqifi.io.messages.DeviceBroadcastMessage;
  */
 public class UdpBroadcast extends DataInterpreter implements Runnable {
   private static Logger log = Logger.getLogger(UdpBroadcast.class.getName());
+  protected static String DISCOVERY_MESSAGE = "DAQiFi?\r\n";
   /**
    * The broadcast datagram socket for send UDP broadcasts
    */
@@ -43,6 +41,15 @@ public class UdpBroadcast extends DataInterpreter implements Runnable {
    */
   private String lastMessage;
 
+  private static DatagramSocket getDatagramSocket(int port) throws SocketException{
+    try {
+      return new DatagramSocket(port);
+    } catch (SocketException err) {
+      log.log(Level.WARNING, String.format("Unable to bind to port %d", port), err);
+    }
+    return new DatagramSocket();
+  }
+
   /**
    * Constructor. Constructs a UDP broadcast socket on the specified broadcast
    * address that listens for responses on the specified port.
@@ -54,8 +61,10 @@ public class UdpBroadcast extends DataInterpreter implements Runnable {
   public UdpBroadcast(int port, InetAddress broadcastAddr)
           throws SocketException {
     this.port = port;
-    this.socket = new DatagramSocket(port);
+    this.socket = getDatagramSocket(port);
     this.socket.setBroadcast(true);
+    log.log(Level.INFO, String.format("Broadcast bound on port %d", this.socket.getLocalPort()));
+
     this.broadcastAddr = broadcastAddr;
   }
 
@@ -69,6 +78,15 @@ public class UdpBroadcast extends DataInterpreter implements Runnable {
    */
   public void send(final String data) throws IOException {
     send(data, port);
+  }
+
+  /**
+   * Sends the DAQiFi broadcast discovery message.
+   *
+   * @throws IOException
+   */
+  public void sendDiscovery() throws IOException {
+    send(DISCOVERY_MESSAGE, port);
   }
 
   /**

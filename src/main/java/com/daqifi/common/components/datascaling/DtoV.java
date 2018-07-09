@@ -1,7 +1,7 @@
 package com.daqifi.common.components.datascaling;
 
 /**
- * Created by marc on 3/29/16.
+ * Converts the integer value to a voltage.
  */
 public class DtoV implements DataScale {
     double analogInPortRange;
@@ -16,6 +16,13 @@ public class DtoV implements DataScale {
         calB = 0;
     }
 
+    /**
+     * Constructs the DtoV converter with the channel calibration values.
+     * @param analogInPortRange
+     * @param analogInScaleM
+     * @param calM
+     * @param calB
+     */
     public DtoV(double analogInPortRange, double analogInScaleM, double calM, double calB) {
         this.analogInPortRange = analogInPortRange;
         this.analogInScaleM = analogInScaleM;
@@ -23,11 +30,16 @@ public class DtoV implements DataScale {
         this.calB = calB;
     }
 
+    /**
+     * Returns the value as a voltage
+     * @param sampleValue
+     * @param extAdcResolution
+     * @return
+     */
     @Override
     public double convert(int sampleValue, int extAdcResolution) {
         return (((double) sampleValue) / (double) extAdcResolution)* analogInPortRange*calM*analogInScaleM + calB;
-        //convertToVoltage(sampleValue, extAdcResolution);
-    }
+     }
 
     @Override
     public float[] getCoefficients() {
