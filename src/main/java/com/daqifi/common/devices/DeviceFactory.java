@@ -7,6 +7,7 @@ import com.daqifi.common.devices.channels.Channel;
 import com.daqifi.common.devices.channels.ChannelInterface;
 import com.daqifi.common.devices.channels.DigitalInputChannel;
 import com.daqifi.common.messages.ProtoMessageV2;
+import com.google.protobuf.ByteString;
 
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
@@ -79,8 +80,21 @@ public class DeviceFactory {
         return setDeviceStatus(sysinfo, device);
     }
 
+    private static int getByteStringAsInt(ByteString in){
+        ByteBuffer bb = ByteBuffer.allocateDirect(4);
+        bb.order(ByteOrder.BIG_ENDIAN);
+        for(int ii = 3; ii >= 0; ii--){
+            if(ii >= in.size()){
+                bb.put((byte) 0xFF);
+            } else {
+                bb.put(in.byteAt(ii));
+            }
+        }
+        bb.flip();
+        return bb.getInt();
+    }
+
     public static DeviceInterface setDeviceStatus(ProtoMessageV2.DaqifiOutMessage sysinfo, DeviceInterface device){
-        System.out.println(sysinfo);
         if(sysinfo == null) return device;
         if (sysinfo.hasPwrStatus()) {
             device.setPowerStatus(sysinfo.getPwrStatus() == 1 ? DeviceInterface.PowerStatus.USB : DeviceInterface.PowerStatus.BATTERY);
@@ -91,19 +105,19 @@ public class DeviceFactory {
         if (sysinfo.hasAnalogInRes()) {
             device.setAdcResolution(sysinfo.getAnalogInRes());
         }
-        if (sysinfo.hasDigitalPortDir()) {
-            ByteBuffer bb = ByteBuffer.allocateDirect(4);
-            bb.order(ByteOrder.BIG_ENDIAN);
+        if (sysinfo.hasAnalogInPortEnabled()) {
+            int analogPortEnabled = getByteStringAsInt(sysinfo.getAnalogInPortEnabled());
 
-            for(int ii = 3; ii >= 0; ii--){
-                if(ii >= sysinfo.getDigitalPortDir().size()){
-                    bb.put((byte) 0xFF);
-                } else {
-                    bb.put(sysinfo.getDigitalPortDir().byteAt(ii));
-                }
+            for(ChannelInterface ch:Channel.filter(device.getChannels(), ChannelInterface.Type.ANALOG_IN)) {
+                AnalogInputChannel aiChannel = (AnalogInputChannel) ch;
+                int channelMask = 1 << ch.getDeviceIndex();
+                boolean isEnabled = (channelMask & analogPortEnabled) == channelMask;
+                aiChannel.setActive(isEnabled);
             }
-            bb.flip();
-            int digitalPortDir = ~bb.getInt();
+        }
+        if (sysinfo.hasDigitalPortDir()) {
+            int digitalPortDir = ~getByteStringAsInt(sysinfo.getDigitalPortDir());
+
             for(ChannelInterface ch:Channel.filter(device.getChannels(), ChannelInterface.Type.DIGITAL_IO)){
                 DigitalInputChannel diChannel = (DigitalInputChannel) ch;
                 boolean isOutput = (diChannel.getBitMask() & digitalPortDir) == diChannel.getBitMask();

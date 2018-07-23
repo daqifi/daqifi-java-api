@@ -27,10 +27,15 @@ public class UdpBroadcast extends DataInterpreter implements Runnable {
    * The broadcast datagram socket for send UDP broadcasts
    */
   private final DatagramSocket socket;
+
+  public void setBroadcastAddr(InetAddress broadcastAddr) {
+    this.broadcastAddr = broadcastAddr;
+  }
+
   /**
    * Broadcast address.
    */
-  private final InetAddress broadcastAddr;
+  private InetAddress broadcastAddr;
   private final int port;
   private final AtomicBoolean running = new AtomicBoolean(false);
 

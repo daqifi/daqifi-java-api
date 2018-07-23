@@ -7,6 +7,7 @@ import com.daqifi.common.messages.ProtoMessageV2;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.Scanner;
 import java.util.concurrent.BlockingQueue;
@@ -19,9 +20,19 @@ public class DeviceMessageInterpreter extends DataInterpreter {
 
     private static Logger log = Logger.getLogger(DeviceMessageInterpreter.class
             .getName());
-    private final String encoding = "UTF-8";
+    private static final String encoding = "UTF-8";
+    private static final String lineTerminator = "\r\n";
 
+    private final byte[] EOL = getBytes(lineTerminator);
+    private final byte[] DAQIFI = getBytes("DAQIFI> s\r\n");
 
+    public static byte[] getBytes(String s){
+        try{
+            return s.getBytes(encoding);
+        } catch(UnsupportedEncodingException err) {
+            return new byte[0];
+        }
+    }
     public String getEncoding() {
         return encoding;
     }
@@ -33,7 +44,6 @@ public class DeviceMessageInterpreter extends DataInterpreter {
     /**
      * Device line terminator.
      */
-    private final String lineTerminator = "\r\n";
 
     private Thread notifierThread = null;
 
@@ -77,6 +87,7 @@ public class DeviceMessageInterpreter extends DataInterpreter {
     }
 
     private boolean hasReadTermPrompt = false;
+
     @Override
     public int parseData(InputStream in) throws IOException {
         try {
@@ -85,7 +96,7 @@ public class DeviceMessageInterpreter extends DataInterpreter {
                 byte[] buff = new byte[11];
                 in.read(buff, 0, 11);
                 in.reset();
-                if(Arrays.equals("DAQIFI> s\r\n".getBytes(encoding), buff)){
+                if(Arrays.equals(DAQIFI, buff)){
                     in.skip(11);
                     hasReadTermPrompt = true;
                 }
@@ -95,7 +106,7 @@ public class DeviceMessageInterpreter extends DataInterpreter {
             byte[] buff = new byte[2];
             in.read(buff, 0, 2);
             in.reset();
-            if(Arrays.equals("\r\n".getBytes(encoding), buff)){
+            if(Arrays.equals(EOL, buff)){
                 in.skip(2);
             }
 

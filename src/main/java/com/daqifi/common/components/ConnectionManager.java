@@ -111,6 +111,9 @@ public class ConnectionManager {
      */
     public void setBroadcastAddress(InetAddress address) {
         broadcastAddress = address;
+        if(broadcaster != null){
+            broadcaster.setBroadcastAddr(address);
+        }
     }
 
     /**
