@@ -1,11 +1,17 @@
 package com.daqifi.common.devices;
 
+import com.daqifi.common.devices.channels.AnalogInputChannel;
+import com.daqifi.common.devices.channels.AnalogMathInputChannel;
+import com.daqifi.common.devices.channels.AnalogOutputChannel;
+import com.daqifi.common.devices.channels.Channel;
 import com.daqifi.common.devices.channels.ChannelInterface;
+import com.daqifi.common.devices.channels.DigitalInputChannel;
 
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -134,12 +140,65 @@ public abstract class Device implements DeviceInterface {
     protected List<ChannelInterface> analogMathChannels = new ArrayList<ChannelInterface>();
 
     public void addMathChannel(ChannelInterface ch) {
-        analogMathChannels.add(ch);
+        if(ch instanceof AnalogMathInputChannel) {
+            analogMathChannels.add(ch);
+        } else {
+            throw new IllegalArgumentException("Channel must be an AnalogMathInputChannel");
+        }
     }
 
     public int getNumberOfMathChannels() {
         return analogMathChannels.size();
     }
+
+    @Override
+    public ChannelInterface getChannelByName(String name){
+        Iterator<ChannelInterface> chIter = this.getChannels().iterator();
+        while(chIter.hasNext()) {
+            ChannelInterface ci = chIter.next();
+            if(name.equals(ci.getName())){
+                return ci;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public AnalogInputChannel getAnalogInChannelByIndex(int index){
+        Iterator<ChannelInterface> chIter = Channel.filter(this.getChannels(), ChannelInterface.Type.ANALOG_IN).iterator();
+        while(chIter.hasNext()) {
+            ChannelInterface ci = chIter.next();
+            if(ci.getDeviceIndex() == index){
+                return (AnalogInputChannel) ci;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public AnalogOutputChannel getAnalogOutChannelByIndex(int index){
+        Iterator<ChannelInterface> chIter = Channel.filter(this.getChannels(), ChannelInterface.Type.ANALOG_OUT).iterator();
+        while(chIter.hasNext()) {
+            ChannelInterface ci = chIter.next();
+            if(ci.getDeviceIndex() == index){
+                return (AnalogOutputChannel) ci;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public DigitalInputChannel getDigitalIOChannelByIndex(int index){
+        Iterator<ChannelInterface> chIter = Channel.filter(this.getChannels(), ChannelInterface.Type.DIGITAL_IO).iterator();
+        while(chIter.hasNext()) {
+            ChannelInterface ci = chIter.next();
+            if(ci.getDeviceIndex() == index){
+                return (DigitalInputChannel) ci;
+            }
+        }
+        return null;
+    }
+
 
     @Override
     public int getNumberOfChannels() {

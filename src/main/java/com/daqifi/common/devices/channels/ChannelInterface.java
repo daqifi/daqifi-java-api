@@ -38,35 +38,35 @@ public interface ChannelInterface {
    *
    * @return
    */
-  public abstract Type getType();
+  Type getType();
 
   /**
    * Returns the channelIndex name.
    *
    * @return
    */
-  public abstract String getName();
-  public abstract void setName(String name);
+  String getName();
+  void setName(String name);
   /**
    * Returns the channelIndex index of the channelIndex on the physical
    * device.
    *
    * @return
    */
-  public abstract int getDeviceIndex();
+  int getDeviceIndex();
 
   /**
    * Returns the channels unit of measure
    */
-  public abstract String getUnit();
-  public abstract void setUnit(String name);
+  String getUnit();
+  void setUnit(String name);
 
 
   /**
    * Returns the channels display color
    */
-  public abstract int getDisplayColor();
-  public abstract void setDisplayColor(int color);
+  int getDisplayColor();
+  void setDisplayColor(int color);
 
   /**
    * Returns the channels plot number
@@ -78,34 +78,34 @@ public interface ChannelInterface {
   /**
    * @param device
    */
-  public abstract void setDevice(final DeviceInterface device);
+  void setDevice(final DeviceInterface device);
 
   /**
    * Returns the device that this channelIndex is associated to.
    *
    * @return device
    */
-  public abstract DeviceInterface getDevice();
+  DeviceInterface getDevice();
 
   /**
    * Returns the number of samples that have been made.
    *
    * @return The number of samples that have been taken
    */
-  public abstract int getNumberOfSamples();
+  int getNumberOfSamples();
 
   /**
    * Returns true if the channel is active. Active means that the device is
    * measuring values on this channel
    */
-  public abstract boolean isActive();
+  boolean isActive();
 
   /**
    * Sets the channels active flag.
    *
    * @param value
    */
-  public abstract void setActive(boolean value);
+  void setActive(boolean value);
 
   /**
    * The NotSupportedException is thrown when the Channel implementation does

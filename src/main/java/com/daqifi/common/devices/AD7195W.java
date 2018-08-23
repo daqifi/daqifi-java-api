@@ -233,10 +233,10 @@ public class AD7195W extends Device implements DeviceInterface {
     public void updateNetworkSettings(String ssid, int securityType, String password){
         StringBuilder sb = new StringBuilder();
         sb.append("SYSTem:COMMunicate:LAN:NETType 1\r\n");
-        sb.append(String.format("SYSTem:COMMunicate:LAN:SSID %s\r\n", ssid));
+        sb.append(String.format("SYSTem:COMMunicate:LAN:SSID \"%s\"\r\n", ssid));
         sb.append(String.format("SYSTem:COMMunicate:LAN:SECURITY %d\r\n", securityType));
         if(securityType != 0) {
-            sb.append(String.format("SYSTem:COMMunicate:LAN:PASs %s\r\n", password));
+            sb.append(String.format("SYSTem:COMMunicate:LAN:PASs \"%s\"\r\n", password));
         }
         sb.append("SYSTem:COMMunicate:LAN:APPLY\r\n");
         sb.append("SYSTem:COMMunicate:LAN:SAVE\r\n");

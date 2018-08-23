@@ -7,11 +7,9 @@ import com.daqifi.io.UdpBroadcast;
 import com.daqifi.io.messages.DeviceBroadcastMessage;
 import com.daqifi.io.messages.Message;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.net.InetAddress;
-import java.util.ArrayList;
+import java.net.InetSocketAddress;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -76,11 +74,8 @@ public class ConnectionManager {
                     DeviceInterface device = DeviceFactory
                             .getDevice(dbm);
                     if (!knownDevices.add(device)) {
-                        Iterator<DeviceInterface> iter = knownDevices.iterator();
-                        while (iter.hasNext()) {
-                            DeviceInterface knownDevice = iter.next();
-                            DeviceFactory.setDeviceStatus(dbm.getMessage(), knownDevice);
-                        }
+                        DeviceInterface knownDevice = getDeviceByAddress(device.getNetworkAddress());
+                        DeviceFactory.setDeviceStatus(dbm.getMessage(), knownDevice);
                     }
                 }
             });
@@ -128,6 +123,22 @@ public class ConnectionManager {
     }
 
     /**
+     * Returns the device with the given InetSocketAddress
+     * @param address Address to search for
+     * @return device If found. Null if no matching device found.
+     */
+    public DeviceInterface getDeviceByAddress(InetSocketAddress address){
+        Iterator<DeviceInterface> iter = knownDevices.iterator();
+        while (iter.hasNext()) {
+            DeviceInterface knownDevice = iter.next();
+            if(knownDevice.getNetworkAddress().equals(address)) {
+                return knownDevice;
+            }
+        }
+        return null;
+    }
+
+    /**
      * Thread used for for listening for UDP Broadcast responses.
      */
     protected class UdpListenThread extends Thread {
@@ -140,34 +151,6 @@ public class ConnectionManager {
         UdpListenThread(UdpBroadcast broadcaster) {
             super(broadcaster);
             start();
-        }
-    }
-
-    private final ArrayList<PropertyChangeListener> listeners = new ArrayList<PropertyChangeListener>();
-
-    /**
-     * Register a change listener for receiving state change updates.
-     *
-     * @param listener
-     */
-    public void addChangeListener(PropertyChangeListener listener) {
-        listeners.add(listener);
-    }
-
-    /**
-     * Removes a previously registered listener.
-     *
-     * @param listener
-     */
-    public void removeChangeListener(PropertyChangeListener listener) {
-        listeners.remove(listener);
-    }
-
-    protected void notifyListeners(String property, Object oldValue,
-                                   Object newValue) {
-        for (PropertyChangeListener listener : listeners) {
-            listener.propertyChange(new PropertyChangeEvent(this, property,
-                    oldValue, newValue));
         }
     }
 }

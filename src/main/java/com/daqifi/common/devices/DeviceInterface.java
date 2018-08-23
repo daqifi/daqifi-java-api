@@ -1,6 +1,9 @@
 // Copyright 2013 Marc Bernardini.
 package com.daqifi.common.devices;
 
+import com.daqifi.common.devices.channels.AnalogInputChannel;
+import com.daqifi.common.devices.channels.AnalogOutputChannel;
+import com.daqifi.common.devices.channels.DigitalInputChannel;
 import com.daqifi.io.MessageProducer;
 import com.daqifi.io.SocketConnector;
 import com.daqifi.common.components.DataBuffer;
@@ -84,6 +87,38 @@ public interface DeviceInterface extends MessageProducer {
      * @return
      */
     Collection<ChannelInterface> getChannels();
+
+    /**
+     * Helper method that returns the first channel with a name that matches the input name.
+     * If no channel matches the name, null is returned.
+     * @param name
+     * @return channel with matching name or null
+     */
+    ChannelInterface getChannelByName(String name);
+
+    /**
+     * Helper method that returns the AnalogInputChannel that matches the passed in device index.
+     *  The device index is 0 based.
+     * @param index
+     * @return channel or null
+     */
+    AnalogInputChannel getAnalogInChannelByIndex(int index);
+
+    /**
+     * Helper method that returns the AnalogOutputChannel that matches the passed in device index.
+     *  The device index is 0 based. For devices that do not have analog output channels, this method always returns null.
+     * @param index
+     * @return channel or null
+     */
+    AnalogOutputChannel getAnalogOutChannelByIndex(int index);
+
+    /**
+     * Helper method that returns the DigitalInputChannel that matches the passed in device index.
+     *  The device index is 0 based. For devices that do not have dio channels, this method always returns null.
+     * @param index
+     * @return channel or null
+     */
+    DigitalInputChannel getDigitalIOChannelByIndex(int index);
 
     /**
      * Returns the total number of channels including synthetic channels

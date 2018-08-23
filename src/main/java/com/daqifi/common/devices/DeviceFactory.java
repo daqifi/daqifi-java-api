@@ -28,7 +28,6 @@ import java.util.Map;
 public class DeviceFactory {
 
     private static Map<String, Class<? extends DeviceInterface>> deviceClasses = initializeDeviceClasses();
-    HashSet<DeviceInterface> knownDevices = new HashSet<DeviceInterface>();
 
     private static Map<String, Class<? extends DeviceInterface>> initializeDeviceClasses() {
         Map<String, Class<? extends DeviceInterface>> map = new HashMap<String, Class<? extends DeviceInterface>>();
@@ -96,6 +95,15 @@ public class DeviceFactory {
 
     public static DeviceInterface setDeviceStatus(ProtoMessageV2.DaqifiOutMessage sysinfo, DeviceInterface device){
         if(sysinfo == null) return device;
+
+        if (sysinfo.hasMacAddr()) {
+            StringBuilder sb = new StringBuilder();
+            ByteString mac = sysinfo.getMacAddr();
+            for (int i = 0; i < mac.size(); i++) {
+                sb.append(String.format("%02X%s", mac.byteAt(i), (i < mac.size() - 1) ? "-" : ""));
+            }
+            device.setMacAddress(sb.toString());
+        }
         if (sysinfo.hasPwrStatus()) {
             device.setPowerStatus(sysinfo.getPwrStatus() == 1 ? DeviceInterface.PowerStatus.USB : DeviceInterface.PowerStatus.BATTERY);
         }
@@ -179,24 +187,6 @@ public class DeviceFactory {
         device.setMacAddress("00:00:00:00:00:00");
 
         return device;
-    }
-
-    /**
-     * Not Implemented.
-     *
-     * @return Empty list
-     */
-    public Collection<DeviceInterface> getKnownDevices() {
-        return knownDevices;
-    }
-
-    /**
-     * Not Implemented.
-     *
-     * @param newDevice
-     */
-    public void addDevice(DeviceInterface newDevice) {
-        knownDevices.add(newDevice);
     }
 
     public static class InvalidDeviceType extends Exception {
