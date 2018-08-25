@@ -165,6 +165,10 @@ public class DeviceFactory {
         }
         device.setAvailableWifiNetworks(availableWifiNetworks);
 
+        if(sysinfo.hasTimestampFreq()) {
+            device.setTimestampFrequency(sysinfo.getTimestampFreq());
+        }
+
         return device;
     }
 

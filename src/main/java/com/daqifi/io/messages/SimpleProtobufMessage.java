@@ -55,10 +55,9 @@ public class SimpleProtobufMessage extends Message {
     return protoMessage.getMsgTimeStamp();
   }
 
-  public long getDeviceTimestamp(TimeUnit unit){
+  public long getDeviceTimestamp(TimeUnit unit, int timeStampFreq){
     long tick = protoMessage.getMsgTimeStamp() & 0x00000000ffffffffL;
-    int freq = protoMessage.getTimestampFreq();
-    double timeInSeconds = ((double)tick)/ ((double)freq);
+    double timeInSeconds = ((double)tick)/ ((double)timeStampFreq);
     switch(unit){
       case NANOSECONDS:
         return Math.round(timeInSeconds * 1000000000);

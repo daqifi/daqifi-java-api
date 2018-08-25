@@ -61,7 +61,7 @@ public class MessageChannelRouter implements
         int index = 0;
         int adcResolution = device.getAdcResolution();
         float[] data = new float[device.getNumberOfAnalogInChannels()];
-        long measurementTime = msg.getDeviceTimestamp(TimeUnit.MICROSECONDS);
+        long measurementTime = msg.getDeviceTimestamp(TimeUnit.MICROSECONDS, device.getTimestampFrequency());
         for (ChannelInterface c : aiChannels) {
             if (c.isActive()) {
                 float value = (float) ((AnalogInputChannel) c).convert(msg.getAnalogInValue(activeIndex), adcResolution);

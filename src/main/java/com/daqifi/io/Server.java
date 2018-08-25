@@ -1,6 +1,7 @@
 package com.daqifi.io;
 
 import com.daqifi.common.components.DtoAConverter;
+import com.daqifi.common.devices.Device;
 import com.daqifi.common.devices.Nyquist1;
 import com.daqifi.common.messages.ProtoMessageV2;
 import com.daqifi.io.generators.Generator;
@@ -170,7 +171,7 @@ public class Server extends Thread {
         builder.setAnalogInRes(ANALOG_RES);
         builder.setAnalogInResPriv(ANALOG_RES);
 
-        builder.setTimestampFreq(50000000);
+        builder.setTimestampFreq(Device.DEFAULT_DEVICE_TIMESTAMP_FREQUENCY);
 
         return builder.build();
     }
@@ -342,7 +343,6 @@ public class Server extends Thread {
             ProtoMessageV2.DaqifiOutMessage.Builder builder = ProtoMessageV2.DaqifiOutMessage.newBuilder();
 
             builder.setMsgTimeStamp((int) time);
-            builder.setTimestampFreq((int) TimeUnit.MICROSECONDS.convert(1, TimeUnit.SECONDS));
             for (int jj = 0; jj < Nyquist1.ANALOG_IN_CHANNELS; jj++) {
                 int bit = 1 << jj;
                 if ((bit & channelMask) == bit) {

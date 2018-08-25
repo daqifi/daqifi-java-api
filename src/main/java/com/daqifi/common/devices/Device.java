@@ -13,6 +13,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Abstract Device class. Contains common method implementations used on all
@@ -40,6 +41,8 @@ public abstract class Device implements DeviceInterface {
      */
     public static final int DEFAULT_SAMPLES_PER_SECOND = 10;
 
+    public static final int DEFAULT_DEVICE_TIMESTAMP_FREQUENCY = 50000000;
+
     private String deviceName;
     private String macAddress;
     private InetSocketAddress address;
@@ -47,6 +50,7 @@ public abstract class Device implements DeviceInterface {
     private PowerStatus powerStatus = PowerStatus.UNKNOWN;
 
     private int adcRes = 0;
+    private int deviceTimestampFreq = DEFAULT_DEVICE_TIMESTAMP_FREQUENCY;
     private Collection<AvailableWifiNetwork> availableWifiNetworks = Collections.emptyList();
 
     @Override
@@ -94,6 +98,16 @@ public abstract class Device implements DeviceInterface {
     @Override
     public void setNetworkAddress(InetSocketAddress networkAddress) {
         this.address = networkAddress;
+    }
+
+    @Override
+    public int getTimestampFrequency() {
+        return deviceTimestampFreq;
+    }
+
+    @Override
+    public void setTimestampFrequency(int frequency) {
+        deviceTimestampFreq = frequency;
     }
 
     @Override

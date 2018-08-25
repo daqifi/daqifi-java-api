@@ -177,6 +177,9 @@ public interface DeviceInterface extends MessageProducer {
 
     int getSampleFrequency();
 
+    void setTimestampFrequency(int frequency);
+    int getTimestampFrequency();
+
     /**
      * Sets the ADC resolution (device voltage range). This is a selector and
      * can be 1 (-10 to +10) or 0 (-5 to +5).
