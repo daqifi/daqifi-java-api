@@ -3,7 +3,10 @@ IO project to handle various io and non-Android related tasks. This library is c
 the Android application and a desktop Java application.
 
 ## Getting started
+  * Install Java
+    * Current version: 18.0
   * Install Gradle
+    * Current version: 7.5
     * On Mac with hombrew: `brew install gradle`
 
 ## Build
@@ -15,7 +18,7 @@ gradle build
 ## Run
 ```sh
 # Run the DAQ emulator
-java -jar ./build/libs/io-1.0.jar 9760
+java -jar ./build/libs/daqifi-io-0.1.0.jar 9760
 ```
 
 ## Useful Stuff

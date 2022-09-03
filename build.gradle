@@ -5,6 +5,7 @@ version = '0.1.0'
 sourceCompatibility = 1.7
 targetCompatibility = 1.7
 
+
 //create a single Jar with all dependencies
 task fatJar(type: Jar) {
 	manifest {
@@ -13,7 +14,7 @@ task fatJar(type: Jar) {
         	'Main-Class': 'com.daqifi.common.devices.Emulator'
     }
     baseName = 'daqifi-' + project.name
-    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
     with jar
 }
 
@@ -48,12 +49,12 @@ protobuf {
 
 javadoc {
     source = sourceSets.main.allJava
-    classpath = configurations.compile
+    classpath = configurations.implementation
 }
 
 //Project dependencies
 dependencies {
-  compile 'com.google.protobuf:protobuf-lite:3.0.0'
+    implementation 'com.google.protobuf:protobuf-lite:3.0.0'
 }
 
 buildscript {
@@ -61,6 +62,6 @@ buildscript {
     mavenCentral()
   }
   dependencies {
-    classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.3'
+    classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.13'
   }
 }
