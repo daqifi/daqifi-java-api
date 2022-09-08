@@ -26,3 +26,4 @@ lint.xml
 .gradle
 .settings
 .DS_Store
+.idea

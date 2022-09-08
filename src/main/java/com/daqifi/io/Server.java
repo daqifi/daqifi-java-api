@@ -12,12 +12,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.net.SocketException;
-import java.net.UnknownHostException;
+import java.net.*;
 import java.nio.ByteBuffer;
 import java.security.SecureRandom;
 import java.util.Date;
@@ -84,7 +79,9 @@ public class Server extends Thread {
 
                         data = "Protobuf streaming";
                     } else if (command.contains("system:stopstreamdata")) {
-                        dt.running = false;
+                        if(dt != null) {
+                            dt.running = false;
+                        }
                         data = "Stop streaming";
                     } else if (command.contains("configure:adc:channel") || command.contains("enable:voltage:dc")) {
                         String[] split = command.split("[ ]");
@@ -100,6 +97,8 @@ public class Server extends Thread {
                         ProtoMessageV2.DaqifiOutMessage msg = getOutMessage();
                         msg.writeDelimitedTo(clientSocket.getOutputStream());
                         data = msg.toString();
+                    } else if (command.contains("system:echo")) {
+                        data = "Not implemented";
                     } else if (splitString.length == 2) {
                         Date time = new Date();
                         String scpicommand = splitString[0];
@@ -148,22 +147,46 @@ public class Server extends Thread {
 
         builder.setAnalogInPortNum(Nyquist1.ANALOG_IN_CHANNELS);
         builder.setAnalogInPortNumPriv(8);
+        // builder.setAnalogInPortType("");
+
+        for(int i =0; i < Nyquist1.ANALOG_IN_CHANNELS; i++) {
+            builder.addAnalogInPortAvRange(4096);
+            builder.addAnalogInPortAvRangePriv(4096);
+        }
         builder.setDeviceFwRev("1.0.2");
         builder.setDeviceHwRev("1.0");
         builder.setDeviceSn(4788544735461581972l);
-        builder.setDigitalPortNum(0);
+
+        builder.setDigitalPortNum(Nyquist1.DIGITAL_IO_CHANNELS);
+        builder.setDigitalPortType(toByteString(0, 1));
+
+        builder.setAnalogOutPortNum(Nyquist1.ANALOG_OUT_CHANNELS);
+        builder.setAnalogOutPortType(toByteString(0, 1));
+        builder.setAnalogOutPortRange(5);
+        builder.setAnalogOutRes(4096);
+
         //builder.setAnalogInP(toByteString(1, 1));
+        builder.setDeviceStatus(1);
+        builder.setPwrStatus(1);
         builder.setBattStatus(1);
         builder.setTempStatus(1);
         //builder.setDacBytes(2);
-        builder.setDeviceStatus(1);
+
 
         builder.setDigitalPortDir(toByteString(0, 1));
         builder.setHostName(getHostName());
         builder.setIpAddr(ByteString.copyFrom(getIpAddress()));
         builder.setMacAddr(ByteString.copyFrom(getMacAddress()));
+        builder.setNetMask(ByteString.copyFrom("255.255.255.255".getBytes()));
+        builder.setPrimaryDns(ByteString.copyFrom("8.8.8.8".getBytes()));
+        builder.setSecondaryDns(ByteString.copyFrom("1.1.1.1".getBytes()));
 
-        builder.setPwrStatus(1);
+        // IPv6
+//        builder.setIpAddrV6(ByteString.copyFrom(getLocalIpV6().getBytes()));
+//        builder.setSubPreLengthV6()
+//        builder.setEui64(ByteString.copyFrom("00:00:00:ff:f0:00:00:00".getBytes()));
+
+
         builder.setSsid("1111");
         builder.setDevicePn("Nq1");
         builder.setDevicePort(port);
@@ -349,6 +372,10 @@ public class Server extends Thread {
                     long t = time + Math.round(jj * (SINE_WAVE_PERIOD / (float) Nyquist1.ANALOG_IN_CHANNELS) * 1_000_000);
                     float value = dataGen.getValue(t);
                     builder.addAnalogInData(DtoAConverter.convertVoltageToInt(value, ANALOG_RES, getAdcRange()));
+                    builder.addAnalogInPortRange(getAdcRange());
+                    builder.addAnalogInIntScaleM(1f);
+                    builder.addAnalogInCalB(0);
+                    builder.addAnalogInCalM(1);
                 }
             }
             byte[] di = new byte[1];

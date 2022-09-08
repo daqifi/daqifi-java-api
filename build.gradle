@@ -9,7 +9,7 @@ targetCompatibility = 1.7
 //create a single Jar with all dependencies
 task fatJar(type: Jar) {
 	manifest {
-        attributes 'Implementation-Title': 'DAQifi Emulator',
+        attributes 'Implementation-Title': 'DAQiFi Java API & Emulator',
         	'Implementation-Version': version,
         	'Main-Class': 'com.daqifi.common.devices.Emulator'
     }
