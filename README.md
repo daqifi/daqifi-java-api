@@ -25,11 +25,11 @@ java -jar ./build/libs/daqifi-io-0.1.0.jar 9760
 ## Useful Stuff
 Useful Classes:
    * Server can be run as a stand alone Java application 
-     that emulates the Wifi DAQ SCPI Measure command. 
+     that emulates the DAQiFi SCPI Measure command. 
      Data generated is a saw wave with a vertical offset 
      equal to the channel and a period of 1 second.
    * UdpResponder can be run as a stand alone Java application 
-     that emulates the Wifi DAQs discovery feature.
+     that emulates the DAQiFi device discovery feature.
 
 ## Third Party Dependencies
    * Java JRE 1.8
