@@ -313,7 +313,7 @@ public class Server extends Thread {
                             if (delta > 1100) {
                                 log.severe(String
                                         .format("Unable to stream at requested rate. Actual data rate: %f Hz",
-                                                1000f * SAMPLES_PER_SEC / delta));
+                                                1000f * saplesPerSecond / delta));
                             }
                             lastTimeLogged = now;
                             startTimeSeq = sequence;
@@ -331,14 +331,8 @@ public class Server extends Thread {
                     }
 
                     sequence += 1;
-                    buildDataMessageV2(System.nanoTime() / 1000);
+                    buildDataMessageV2(System.currentTimeMillis());
                     waitFor(waitInMicros);
-
-                    if(sequence % 100 == 0 || saplesPerSecond < 100) {
-                        char[] chars = {'|','/','-','\\'};
-                        System.out.print('\b');
-                        System.out.print( chars[sequence % 4] );
-                    }
                 }
             } catch (IOException err) {
                 log.warning("Exception caught. Stopping data generation. Error: "
@@ -383,6 +377,7 @@ public class Server extends Thread {
 
             builder.setDigitalData(ByteString.copyFrom(di));
             builder.build().writeDelimitedTo(out);
+            out.flush();
         }
     }
 }
