@@ -48,77 +48,82 @@ public class Server extends Thread {
             ServerSocket sserver = new ServerSocket(port);
             BufferedReader in = null;
             while (sserver.isBound()) {
-                Socket clientSocket = sserver.accept();
-                log.info("Accepting connection...");
-                // clientSocket.setTcpNoDelay(true);
-                clientSocket.setSendBufferSize(50000);
+                try {
+                    Socket clientSocket = sserver.accept();
+                    log.info("Accepting connection...");
+                    clientSocket.setTcpNoDelay(true);
+                    clientSocket.setSendBufferSize(50000);
 
-                in = new BufferedReader(new InputStreamReader(
-                        clientSocket.getInputStream()));
-                while (clientSocket.isConnected()) {
-                    String command = in.readLine();
-                    if (command == null) {
-                        log.info("Connection Closed");
-                        break;
-                    }
-                    command = command.toLowerCase();
-                    log.info(command);
-                    String[] splitString = command.split("[?]");
-                    String data;
-                    if (command.contains("system:startstreamdata")) {
-                        log.info("enabling streaming");
-                        log.info(String.format("TCP send buffer size: %d",
-                                clientSocket.getSendBufferSize()));
-                        int samplesPerSecond = SAMPLES_PER_SEC;
-                        String[] split = command.split("[ ]");
-                        if (split.length == 2) {
-                            samplesPerSecond = Integer.parseInt(split[1]);
+                    in = new BufferedReader(new InputStreamReader(
+                            clientSocket.getInputStream()));
+                    while (clientSocket.isConnected()) {
+                        String command = in.readLine();
+                        if (command == null) {
+                            log.info("Connection Closed");
+                            break;
                         }
-                        dt = new DataThread(clientSocket.getOutputStream(),
-                                samplesPerSecond);
+                        command = command.toLowerCase();
+                        log.info(command);
+                        String[] splitString = command.split("[?]");
+                        String data;
+                        if (command.contains("system:startstreamdata")) {
+                            log.info("enabling streaming");
+                            log.info(String.format("TCP send buffer size: %d",
+                                    clientSocket.getSendBufferSize()));
+                            int samplesPerSecond = SAMPLES_PER_SEC;
+                            String[] split = command.split("[ ]");
+                            if (split.length == 2) {
+                                samplesPerSecond = Integer.parseInt(split[1]);
+                            }
+                            dt = new DataThread(clientSocket.getOutputStream(),
+                                    samplesPerSecond);
 
-                        data = "Protobuf streaming";
-                    } else if (command.contains("system:stopstreamdata")) {
-                        if(dt != null) {
-                            dt.running = false;
-                        }
-                        data = "Stop streaming";
-                    } else if (command.contains("configure:adc:channel") || command.contains("enable:voltage:dc")) {
-                        String[] split = command.split("[ ]");
-                        channelMask = Integer.parseInt(split[1]);
-                        data = String.format("Set channel mask to %s",
-                                Integer.toBinaryString(channelMask));
-                    } else if (command.contains("configure:adc:range")) {
-                        String[] split = command.split("[ ]");
-                        adcRange = Integer.parseInt(split[1]);
-                        data = String.format("Set range to %d", adcRange);
-                    } else if (command.contains("system:sysinfopb")) {
-                        //WiFiDAQOutMessage msg = getWifiDAQOutMessage();
-                        ProtoMessageV2.DaqifiOutMessage msg = getOutMessage();
-                        msg.writeDelimitedTo(clientSocket.getOutputStream());
-                        data = msg.toString();
-                    } else if (command.contains("system:echo")) {
-                        data = "Not implemented";
-                    } else if (splitString.length == 2) {
-                        Date time = new Date();
-                        String scpicommand = splitString[0];
-                        // Check the commands to see what we are measuring:
-                        if (scpicommand.equals("measure:ext:adc")) {
-                            // Return an analog channel measurement value
-                            double channel = Double.parseDouble(splitString[1]
-                                    .trim()) + time.getTime() % 1000 / 1000d;
-                            data = String.format("+%9.8f\r\n", channel);
-                        } else if (scpicommand.equals("input:port:state")) {
-                            // Return a digital channel measurement value
-                            data = String.format("%d\r\n", time.getTime() % 2);
+                            data = "Protobuf streaming";
+                        } else if (command.contains("system:stopstreamdata")) {
+                            if (dt != null) {
+                                dt.running = false;
+                            }
+                            data = "Stop streaming";
+                        } else if (command.contains("configure:adc:channel") || command.contains("enable:voltage:dc")) {
+                            String[] split = command.split("[ ]");
+                            channelMask = Integer.parseInt(split[1]);
+                            data = String.format("Set channel mask to %s",
+                                    Integer.toBinaryString(channelMask));
+                        } else if (command.contains("configure:adc:range")) {
+                            String[] split = command.split("[ ]");
+                            adcRange = Integer.parseInt(split[1]);
+                            data = String.format("Set range to %d", adcRange);
+                        } else if (command.contains("system:sysinfopb")) {
+                            //WiFiDAQOutMessage msg = getWifiDAQOutMessage();
+                            ProtoMessageV2.DaqifiOutMessage msg = getOutMessage();
+                            msg.writeDelimitedTo(clientSocket.getOutputStream());
+                            data = msg.toString();
+                        } else if (command.contains("system:echo")) {
+                            data = "Not implemented";
+                        } else if (splitString.length == 2) {
+                            Date time = new Date();
+                            String scpicommand = splitString[0];
+                            // Check the commands to see what we are measuring:
+                            if (scpicommand.equals("measure:ext:adc")) {
+                                // Return an analog channel measurement value
+                                double channel = Double.parseDouble(splitString[1]
+                                        .trim()) + time.getTime() % 1000 / 1000d;
+                                data = String.format("+%9.8f\r\n", channel);
+                            } else if (scpicommand.equals("input:port:state")) {
+                                // Return a digital channel measurement value
+                                data = String.format("%d\r\n", time.getTime() % 2);
+                            } else {
+                                data = "Invalid Command.";
+                            }
+                            clientSocket.getOutputStream().write(data.getBytes());
                         } else {
-                            data = "Invalid Command.";
+                            data = "Unknown command";
                         }
-                        clientSocket.getOutputStream().write(data.getBytes());
-                    } else {
-                        data = "Unknown command";
+                        log.info("\t" + data);
                     }
-                    log.info("\t" + data);
+                }
+                catch (IOException err) {
+                    log.warning(err.toString());
                 }
             }
             sserver.close();
@@ -274,7 +279,7 @@ public class Server extends Thread {
         private int dt;
         private final double TOL = 0.9;
         private final Generator dataGen;
-        private final float SINE_WAVE_PERIOD = 5;
+        private final float SINE_WAVE_PERIOD = 1;
 
         public DataThread(OutputStream os, int samplesPerSecond) {
             this.out = os;
@@ -331,7 +336,7 @@ public class Server extends Thread {
                     }
 
                     sequence += 1;
-                    buildDataMessageV2(System.currentTimeMillis());
+                    buildDataMessageV2(System.nanoTime() / 1000);
                     waitFor(waitInMicros);
                 }
             } catch (IOException err) {
