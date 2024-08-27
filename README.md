@@ -6,20 +6,17 @@ Java API for interacting with DAQiFi devices.
   * Install Java
     * Target: 1.8  
     * Current version: 18.0
-  * Install Gradle
-    * Current version: 7.5
-    * On Mac with hombrew: `brew install gradle`
 
 ## Build
 ```sh
 # Generate protobuf classes, compile java and build a runnable jar
-gradle build
+./gradlew build
 ```
 
 ## Run
 ```sh
 # Run the DAQ emulator
-java -jar ./build/libs/daqifi-io-0.1.0.jar 9760
+java -jar ./build/libs/daqifi-java-api-0.1.1.jar 9760
 ```
 
 ## Useful Stuff
