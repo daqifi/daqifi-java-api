@@ -12,6 +12,11 @@ Java API for interacting with DAQiFi devices.
 # Generate protobuf classes, compile java and build a runnable jar
 ./gradlew build
 ```
+Note: to force specific JDK installation, add the following to build.gradle (change path as needed):
+```sh
+compileJava.options.fork = true
+compileJava.options.forkOptions.executable = 'C:\\Program Files\\Java\\jdk1.8.0_181\\bin\\javac.exe'
+```
 
 ## Run
 ```sh
