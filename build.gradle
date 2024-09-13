@@ -1,17 +1,20 @@
-apply plugin: 'java'
-apply plugin: 'com.google.protobuf'
+plugins {
+    id 'java'
+    id 'com.google.protobuf' version '0.9.3'
+}
 
-version = '0.1.1'
-sourceCompatibility = 1.7
-targetCompatibility = 1.7
+version = '0.2.0'
 
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
 
-//create a single Jar with all dependencies
 task fatJar(type: Jar) {
-	manifest {
+    manifest {
         attributes 'Implementation-Title': 'DAQiFi Java API & Emulator',
-        	'Implementation-Version': version,
-        	'Main-Class': 'com.daqifi.common.devices.Emulator'
+                'Implementation-Version': version,
+                'Main-Class': 'com.daqifi.common.devices.Emulator'
     }
     archiveBaseName.set(project.name)
     from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
@@ -20,7 +23,6 @@ task fatJar(type: Jar) {
 
 build.finalizedBy(fatJar)
 
-//Get dependencies from Maven central repository
 repositories {
     mavenCentral()
     google()
@@ -28,20 +30,14 @@ repositories {
 
 protobuf {
     protoc {
-        artifact = 'com.google.protobuf:protoc:3.0.0'
-    }
-    plugins {
-        javalite {
-            artifact = 'com.google.protobuf:protoc-gen-javalite:3.0.0'
-        }
+        artifact = 'com.google.protobuf:protoc:3.24.4'
     }
     generateProtoTasks {
         all().each { task ->
             task.builtins {
-                remove java
-            }
-            task.plugins {
-                javalite { }
+                java {
+                    option 'lite' // Enable Java Lite generation
+                }
             }
         }
     }
@@ -52,16 +48,6 @@ javadoc {
     classpath = configurations.implementation
 }
 
-//Project dependencies
 dependencies {
-    implementation 'com.google.protobuf:protobuf-lite:3.0.0'
-}
-
-buildscript {
-  repositories {
-    mavenCentral()
-  }
-  dependencies {
-    classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.13'
-  }
+    implementation 'com.google.protobuf:protobuf-javalite:3.24.4'
 }

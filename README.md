@@ -3,15 +3,14 @@
 Java API for interacting with DAQiFi devices.
 
 ## Getting started
-  * Install Java
-    * Target: 1.8  
-    * Current version: 18.0
+- Java Development Kit (JDK) 17: Ensure that JDK 17 is installed on your system.
 
 ## Build
 ```sh
 # Generate protobuf classes, compile java and build a runnable jar
 ./gradlew build
 ```
+
 Note: to force specific JDK installation, add the following to build.gradle (change path as needed):
 ```sh
 compileJava.options.fork = true
@@ -21,26 +20,21 @@ compileJava.options.forkOptions.executable = 'C:\\Program Files\\Java\\jdk1.8.0_
 ## Run
 ```sh
 # Run the DAQ emulator
-java -jar ./build/libs/daqifi-java-api-0.1.1.jar 9760
+java -jar ./build/libs/daqifi-java-api-0.2.0.jar 9760
 ```
 
 ## Useful Stuff
 Useful Classes:
-   * Server can be run as a stand alone Java application 
+   * Server can be run as a stand-alone Java application 
      that emulates the DAQiFi SCPI Measure command. 
      Data generated is a saw wave with a vertical offset 
      equal to the channel and a period of 1 second.
-   * UdpResponder can be run as a stand alone Java application 
+   * UdpResponder can be run as a stand-alone Java application 
      that emulates the DAQiFi device discovery feature.
 
 ## Third Party Dependencies
-   * Java JRE 1.8
+   * Java 17
    * Google Protocol Buffers
-   * JMockit (included in /libs)
-      * Used for unit test mocks and code coverage.
-   * JUnit (not included)
-      * Used for unit tests.
-
 
 ## Generating Messages classes from .proto files:
    1 At the project root run (Mac/Linux):
