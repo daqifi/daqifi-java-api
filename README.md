@@ -18,9 +18,17 @@ compileJava.options.forkOptions.executable = 'C:\\Program Files\\Java\\jdk1.8.0_
 ```
 
 ## Run
+
+Single emulator
 ```sh
-# Run the DAQ emulator
 java -jar ./build/libs/daqifi-java-api-0.2.0.jar 9760
+```
+
+Multiple emulators
+Note that the serial number and MAC address are deterministic and based on the port number.
+```sh
+# starts three device emulations
+java -jar ./build/libs/daqifi-java-api-0.2.0.jar 9760 9761 9762
 ```
 
 ## Useful Stuff
