@@ -1,4 +1,3 @@
-// Copyright 2013 Marc Bernardini.
 package com.daqifi.common.devices;
 
 import com.daqifi.io.messages.DeviceBroadcastMessage;
@@ -165,16 +164,16 @@ public class DeviceFactory {
 
     public static DeviceInterface getDevice(String deviceType, String host, int port)
             throws InvalidDeviceType {
-        DeviceInterface device = null;
+        DeviceInterface device;
         try {
             Class<? extends DeviceInterface> deviceClass = deviceClasses.get(deviceType);
             device = deviceClass.getDeclaredConstructor().newInstance();
-        } catch (InstantiationException | IllegalAccessException e) {
+        } catch (InstantiationException |
+                 NoSuchMethodException |
+                 IllegalAccessException |
+                 InvocationTargetException ignore) {
             throw new InvalidDeviceType(deviceType);
-        } catch (InvocationTargetException | NoSuchMethodException e) {
-            throw new RuntimeException(e);
         }
-
 
         device.setDeviceName(host);
         InetSocketAddress address = InetSocketAddress.createUnresolved(host, port);

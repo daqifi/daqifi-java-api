@@ -29,6 +29,7 @@ import static com.daqifi.common.devices.Nyquist1.ANALOG_RES;
 public class Server extends Thread {
     private static Logger log = Logger.getLogger(Server.class.getName());
     private static final long BASE_SERIAL_NUMBER = 4788544735461581972L;
+    private final InetAddress ip = initIp();
     private int port;
     private long serialNumber;
     private DataInterpreter clientConnectionInterpreter;
@@ -210,8 +211,6 @@ public class Server extends Thread {
     protected int getChannelMask() {
         return channelMask;
     }
-
-    private final InetAddress ip = initIp();
 
     protected InetAddress initIp() {
         try {
