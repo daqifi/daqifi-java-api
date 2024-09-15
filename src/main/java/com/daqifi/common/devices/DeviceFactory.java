@@ -9,13 +9,12 @@ import com.daqifi.common.devices.channels.DigitalInputChannel;
 import com.daqifi.common.messages.ProtoMessageV2;
 import com.google.protobuf.ByteString;
 
+import java.lang.reflect.InvocationTargetException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -30,7 +29,7 @@ public class DeviceFactory {
     private static Map<String, Class<? extends DeviceInterface>> deviceClasses = initializeDeviceClasses();
 
     private static Map<String, Class<? extends DeviceInterface>> initializeDeviceClasses() {
-        Map<String, Class<? extends DeviceInterface>> map = new HashMap<String, Class<? extends DeviceInterface>>();
+        Map<String, Class<? extends DeviceInterface>> map = new HashMap<>();
         map.put("Nyquist 1", Nyquist1.class);
         map.put("Nyquist 2", Nyquist2.class);
         map.put("Nyquist 3", Nyquist3.class);
@@ -52,20 +51,12 @@ public class DeviceFactory {
 
         ProtoMessageV2.DaqifiOutMessage sysinfo = message.getMessage();
         if(sysinfo != null) {
-            switch (sysinfo.getDevicePn()) {
-                case "Nq1":
-                    device = new Nyquist1();
-                    break;
-                case "Nq2":
-                    device = new Nyquist2();
-                    break;
-                case "Nq3":
-                    device = new Nyquist3();
-                    break;
-                default:
-                    device = new Nyquist1();
-                    break;
-            }
+            device = switch (sysinfo.getDevicePn()) {
+                case "Nq1" -> new Nyquist1();
+                case "Nq2" -> new Nyquist2();
+                case "Nq3" -> new Nyquist3();
+                default -> new Nyquist1();
+            };
         } else {
             device = new Nyquist1();
         }
@@ -176,12 +167,12 @@ public class DeviceFactory {
             throws InvalidDeviceType {
         DeviceInterface device = null;
         try {
-            Class deviceClass = deviceClasses.get(deviceType);
-            device = (DeviceInterface) deviceClass.newInstance();
-        } catch (InstantiationException e) {
+            Class<? extends DeviceInterface> deviceClass = deviceClasses.get(deviceType);
+            device = deviceClass.getDeclaredConstructor().newInstance();
+        } catch (InstantiationException | IllegalAccessException e) {
             throw new InvalidDeviceType(deviceType);
-        } catch (IllegalAccessException e) {
-            throw new InvalidDeviceType(deviceType);
+        } catch (InvocationTargetException | NoSuchMethodException e) {
+            throw new RuntimeException(e);
         }
 
 
