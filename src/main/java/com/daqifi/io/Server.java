@@ -14,11 +14,12 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.*;
 import java.nio.ByteBuffer;
-import java.security.SecureRandom;
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.LogRecord;
 import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 
 import static com.daqifi.common.devices.Nyquist1.ANALOG_RES;
 
@@ -27,22 +28,55 @@ import static com.daqifi.common.devices.Nyquist1.ANALOG_RES;
  * Emulator Server.
  */
 public class Server extends Thread {
-    private static Logger log = Logger.getLogger(Server.class.getName());
     private static final long BASE_SERIAL_NUMBER = 4788544735461581972L;
     private final InetAddress ip = initIp();
-    private int port;
-    private long serialNumber;
+    private final Logger log;
+    private final int port;
+    private final long serialNumber;
     private DataInterpreter clientConnectionInterpreter;
     static int SAMPLES_PER_SEC = 100;
     private DataThread dt;
 
     public Server(int port, DataInterpreter dataInterpreter) {
+        log = getServerLogger(port);
         this.port = port;
+
         this.clientConnectionInterpreter = dataInterpreter;
         this.serialNumber = getSerialNumberForPort(port);
 
         log.info(String.format("Listening on port %d\nSerial number: %d", port, serialNumber));
         start();
+    }
+
+    private Logger getServerLogger(int port) {
+        Logger logger = Logger.getLogger(Server.class.getName() + ":" + port);
+
+        // Remove the use of parent handlers to prevent duplicate logs
+        logger.setUseParentHandlers(false);
+
+        // Create a new console handler
+        ConsoleHandler consoleHandler = new ConsoleHandler();
+
+        // Set a custom formatter to include the logger's name (which has the port number)
+        consoleHandler.setFormatter(new SimpleFormatter() {
+            private static final String format = "[%1$tF %1$tT] [%2$s] %4$s: %5$s%6$s%n";
+
+            @Override
+            public synchronized String format(LogRecord lr) {
+                return String.format(format,
+                        new Date(lr.getMillis()),
+                        lr.getLoggerName(),
+                        lr.getLevel().getLocalizedName(),
+                        lr.getSourceMethodName(),
+                        lr.getMessage(),
+                        lr.getThrown() == null ? "" : "\n" + lr.getThrown());
+            }
+        });
+
+        // Add the handler to the logger
+        logger.addHandler(consoleHandler);
+
+        return logger;
     }
 
     @Override
@@ -66,7 +100,7 @@ public class Server extends Thread {
                             break;
                         }
                         command = command.toLowerCase();
-                        log.info(command);
+                        log.info(port + ":" + command);
                         String[] splitString = command.split("[?]");
                         String data;
                         if (command.contains("system:startstreamdata")) {
@@ -81,7 +115,7 @@ public class Server extends Thread {
                             dt = new DataThread(clientSocket.getOutputStream(),
                                     samplesPerSecond);
 
-                            data = "Protobuf streaming";
+                            data = String.format("Protobuf streaming requested at %dHz", samplesPerSecond);
                         } else if (command.contains("system:stopstreamdata")) {
                             if (dt != null) {
                                 dt.running = false;
