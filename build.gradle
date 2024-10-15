@@ -49,5 +49,5 @@ javadoc {
 }
 
 dependencies {
-    implementation 'com.google.protobuf:protobuf-javalite:3.24.4'
+    implementation 'com.google.protobuf:protobuf-javalite:4.28.2'
 }
