@@ -286,102 +286,89 @@ public class Server extends Thread {
 
     public class DataThread extends Thread {
         private final OutputStream out;
-        private boolean running;
-        private final int saplesPerSecond;
-        private int dt;
-        private final double TOL = 0.9;
+        private volatile boolean running;
+        private final int samplesPerSecond;
         private final Generator dataGen;
-        private final float SINE_WAVE_PERIOD = 1;
+        private final float SINE_WAVE_PERIOD = 1;  // 1 second period
+        private int sequence;
+        private final long TIMESTAMP_FREQUENCY = Device.DEFAULT_DEVICE_TIMESTAMP_FREQUENCY;
 
         public DataThread(OutputStream os, int samplesPerSecond) {
+            if (samplesPerSecond <= 0 || samplesPerSecond > 1_000_000) {
+                throw new IllegalArgumentException("Sample rate must be between 1 and 1,000,000 Hz");
+            }
+            
             this.out = os;
             this.running = true;
-            this.saplesPerSecond = samplesPerSecond;
-            this.dt = convertSampleRateToDt(samplesPerSecond);
-
+            this.samplesPerSecond = samplesPerSecond;
+            this.sequence = 0;
+            
             float max = getAdcRange();
-            this.dataGen = new SineGenerator(max * 0.99f / 2, (float) (2 * Math.PI / (1_000_000 * SINE_WAVE_PERIOD)), max / 2);
-            //this.dataGen = new Limiter(new CompositeGenerator(
-            //        new SineGenerator(max*0.99f, (float) (2 * Math.PI / 10f), 0f),
-            //        new SineGenerator(1f, (float) (2 * Math.PI / 1000f), 0f)), -1*max, max);
+            // For a 1Hz sine wave:
+            float frequency = 1.0f;  // Hz
+            float angularFrequency = (float)(2.0 * Math.PI * frequency);  // radians/second
+            this.dataGen = new SineGenerator(
+                max * 0.99f / 2,    // amplitude
+                angularFrequency,   // angular frequency in radians/second
+                max / 2             // offset to center the sine wave
+            );
             start();
-        }
-
-        private int convertSampleRateToDt(int sps) {
-            return (int) Math.floor((1.0 / sps) * 1000 * TOL);
         }
 
         @Override
         public void run() {
-            double dtPerSample = 1d / saplesPerSecond;
-            long waitInMicros = Math.round(Math.floor(dtPerSample * 1_000_000));
             try {
-                int sequence = 0;
-                long lastTimeLogged = System.currentTimeMillis();
-                int startTimeSeq = 0;
+                long startTimeNanos = System.nanoTime();
+                long nextSampleTime = startTimeNanos;
+                long samplePeriodNanos = 1_000_000_000L / samplesPerSecond;
+                
                 while (running) {
-
-                    if (sequence - startTimeSeq == saplesPerSecond) {
-                        long now = System.currentTimeMillis();
-                        long delta = now - lastTimeLogged;
-                        if (delta > 1000) {
-                            // When the lag goes above 10%, display an error
-                            // message with the actual data rate
-                            if (delta > 1100) {
-                                log.severe(String
-                                        .format("Unable to stream at requested rate. Actual data rate: %f Hz",
-                                                1000f * saplesPerSecond / delta));
-                            }
-                            lastTimeLogged = now;
-                            startTimeSeq = sequence;
-
-                            if (waitInMicros > 0) {
-                                waitInMicros = waitInMicros - 10;
-                            }
-                        } else {
-                            // We've already sent the number of samples for the
-                            // current second. If we are sending too fast, slow down the wait time
-                            if (delta < 900) {
-                                waitInMicros = waitInMicros + 10;
-                            }
+                    while (System.nanoTime() < nextSampleTime && running) {
+                        long waitTime = nextSampleTime - System.nanoTime();
+                        if (waitTime > 1_000_000) {
+                            Thread.sleep(waitTime / 1_000_000);
                         }
                     }
 
-                    sequence += 1;
-                    buildDataMessageV2(System.nanoTime() / 1000);
-                    waitFor(waitInMicros);
+                    if (!running) break;
+
+                    sequence++;
+                    long elapsedNanos = System.nanoTime() - startTimeNanos;
+                    double elapsedSeconds = elapsedNanos / 1_000_000_000.0;
+                    int timestamp = (int)(elapsedSeconds * TIMESTAMP_FREQUENCY);
+                    buildDataMessageV2(timestamp);
+                    
+                    nextSampleTime = startTimeNanos + (sequence * samplePeriodNanos);
                 }
-            } catch (IOException err) {
-                log.warning("Exception caught. Stopping data generation. Error: "
-                        + err.toString());
-            } catch (InterruptedException err) {
-                log.warning("Exception caught. Stopping data generation. Error: "
-                        + err.toString());
-            }
-        }
-
-        private void waitFor(long micros) throws InterruptedException {
-            if (micros <= 0) return;
-
-            if (micros > 10_000) {
-                Thread.sleep(TimeUnit.MILLISECONDS.convert(micros, TimeUnit.MICROSECONDS));
-            } else {
-                long waitUntil = System.nanoTime() + (micros * 1_000);
-                while (waitUntil > System.nanoTime()) {
-                    ;
+            } catch (IOException | InterruptedException err) {
+                log.warning("Exception caught. Stopping data generation. Error: " + err.toString());
+            } finally {
+                try {
+                    out.close();
+                } catch (IOException e) {
+                    log.warning("Error closing output stream: " + e.toString());
                 }
             }
         }
 
-        private void buildDataMessageV2(long time) throws IOException {
+        private void buildDataMessageV2(int timestamp) throws IOException {
             ProtoMessageV2.DaqifiOutMessage.Builder builder = ProtoMessageV2.DaqifiOutMessage.newBuilder();
-
-            builder.setMsgTimeStamp((int) time);
+            builder.setMsgTimeStamp(timestamp);
+            
+            // Calculate the time in seconds for this sample
+            double timeInSeconds = sequence / (double)samplesPerSecond;
+            
             for (int jj = 0; jj < Nyquist1.ANALOG_IN_CHANNELS; jj++) {
                 int bit = 1 << jj;
                 if ((bit & channelMask) == bit) {
-                    long t = time + Math.round(jj * (SINE_WAVE_PERIOD / (float) Nyquist1.ANALOG_IN_CHANNELS) * 1_000_000);
-                    float value = dataGen.getValue(t);
+                    // Add phase offset for each channel (evenly distributed over one period)
+                    double channelPhaseOffset = (jj * SINE_WAVE_PERIOD) / Nyquist1.ANALOG_IN_CHANNELS;
+                    double channelTimeInSeconds = timeInSeconds + channelPhaseOffset;
+                    
+                    // Convert to nanoseconds for the generator
+                    long timeNanos = (long)(channelTimeInSeconds * 1_000_000_000L);
+                    float value = dataGen.getValue(timeNanos);
+                    
                     builder.addAnalogInData(DtoAConverter.convertVoltageToInt(value, ANALOG_RES, getAdcRange()));
                     builder.addAnalogInPortRange(getAdcRange());
                     builder.addAnalogInIntScaleM(1f);
@@ -389,8 +376,12 @@ public class Server extends Thread {
                     builder.addAnalogInCalM(1);
                 }
             }
+            
             byte[] di = new byte[1];
-            di[0] = (time % 2 == 0) ? (byte) -1 : 0;
+            // Create 1Hz square wave (1 second on, 1 second off)
+            // Floor division of seconds gives us 0 for first second, 1 for second second, etc.
+            boolean isSecondEven = ((int)timeInSeconds % 2) == 0;
+            di[0] = isSecondEven ? (byte) -1 : 0;  // -1 is all bits set (on), 0 is all bits clear (off)
 
             builder.setDigitalData(ByteString.copyFrom(di));
             builder.build().writeDelimitedTo(out);
