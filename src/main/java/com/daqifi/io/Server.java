@@ -378,7 +378,10 @@ public class Server extends Thread {
             }
             
             byte[] di = new byte[1];
-            di[0] = (sequence % 2 == 0) ? (byte) -1 : 0;
+            // Create 1Hz square wave (1 second on, 1 second off)
+            // Floor division of seconds gives us 0 for first second, 1 for second second, etc.
+            boolean isSecondEven = ((int)timeInSeconds % 2) == 0;
+            di[0] = isSecondEven ? (byte) -1 : 0;  // -1 is all bits set (on), 0 is all bits clear (off)
 
             builder.setDigitalData(ByteString.copyFrom(di));
             builder.build().writeDelimitedTo(out);
